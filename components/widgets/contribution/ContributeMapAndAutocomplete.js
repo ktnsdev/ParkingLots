@@ -103,7 +103,7 @@ class ContributeMapAndAutocomplete extends Component {
     }
 
     getSelectedPlaceDetails(placeId) {
-        fetch(placeSearchURL + placeId + '&language=th&fields=name,address_component,plus_code,formatted_address,name,geometry,type&key=' + placesAPIKey + '&sessiontoken=' + sessionkey)
+        fetch(placeSearchURL + placeId + '&language=th&fields=name,address_component,plus_code,formatted_address,name,geometry,type&key=' + config.placesAPIKey + '&sessiontoken=' + config.sessionkey)
         .then(response => response.json())
         .then((jsonData) => {
             console.log(jsonData)
@@ -112,7 +112,7 @@ class ContributeMapAndAutocomplete extends Component {
             })
         });
 
-        fetch(placeSearchURL + placeId + '&fields=name,address_component,plus_code,formatted_address,name,geometry,type&key=' + placesAPIKey + '&sessiontoken=' + sessionkey)
+        fetch(placeSearchURL + placeId + '&fields=name,address_component,plus_code,formatted_address,name,geometry,type&key=' + config.placesAPIKey + '&sessiontoken=' + config.sessionkey)
             .then(response => response.json())
             .then((jsonData) => {
                 console.log(jsonData)
