@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import GrayTextInputWithTitle, { output } from '../GrayTextInputWIthTitle';
 import TextWithFont from '../TextWithFont';
 import ParkingFeeConditionAdder from './ParkingFeeConditionAdder';
@@ -39,7 +39,7 @@ const ContributeParkingLotFee = () => {
             setTime(parseInt(output));
             setCharIsValid(true);
             setInputNotEmpty(true);
-            
+
             if (unitTime == 'hour' && (parseInt(output) > 23 || parseInt(output) < 0)) {
                 setTimeIsValid(false);
             } else if (unitTime == 'minute' && (parseInt(output) > 59 || parseInt(output) < 0)) {
@@ -58,12 +58,12 @@ const ContributeParkingLotFee = () => {
 
     function isInt(str) {
         return !isNaN(str) && Number.isInteger(parseFloat(str));
-      }
+    }
 
     function renderParkingFeeConditionAdder() {
         return (
             <>
-                <View style={{ marginTop: '2%' }}>
+                <View style={{ marginVertical: '2%' }}>
                     <ParkingFeeConditionAdder
                         title={'How are the parking fees calculated?'}
                         subtitle={'Provide the information about the parking fees below.'}
@@ -93,12 +93,14 @@ const ContributeParkingLotFee = () => {
                     unitTime={unitTime}
                 />
 
-                <HourMinuteDayButton initial={'hr'} callbackFunction={getUnitTime}/>
+                <HourMinuteDayButton initial={'hr'} callbackFunction={getUnitTime} />
             </View>
 
             <View style={styles.lineBreak}></View>
 
-            {(inputNotEmpty && charIsValid && timeIsValid) && renderParkingFeeConditionAdder()}
+            <View style={{ ...Platform.select({ 'ios': { marginBottom: '-3%' }, 'android': { marginBottom: '-7%' }}) }}>
+                {(inputNotEmpty && charIsValid && timeIsValid) && renderParkingFeeConditionAdder()}
+            </View>
         </>
     )
 }

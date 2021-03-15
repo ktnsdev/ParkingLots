@@ -4,22 +4,27 @@ import TextWithFont from './TextWithFont';
 import TitleWithSubtitle from './TitleWithSubtitle';
 
 const GrayFeeInput = (props) => {
-    const onTextChange = (input) => {
-        props.onChangeText(input);
+    const [inputField, setInputField] = useState('');
+
+    const onChangeText = (input) => {
+        setInputField(input.replace(/[^0-9]/g, ''))
     }
 
     return (
         <>
-            <View style={{ marginVertical: '2%' }}>
-                <TitleWithSubtitle
-                    {...props}
-                    titleFontSize={props.titleFontSize}
-                    title={props.title}
-                    subtitle={props.subtitle == undefined ? undefined : props.subtitle}
-                />
-
-                <View style={{ backgroundColor: '#ddd', paddingHorizontal: '5%', paddingVertical: '3%', marginTop: '2%', borderRadius: 12 }}>
-                    <TextInput placeholder={props.placeholder} keyboardType={props.keyboardType == undefined ? 'default' : props.keyboardType} returnKeyType={props.returnKeyType == undefined ? 'done' : props.returnKeyType} onChangeText={input => onTextChange(input)} />
+            <View style={{ marginVertical: '0%' }}>
+                <View style={{ backgroundColor: '#ddd', paddingHorizontal: '5%', paddingVertical: '3%', marginTop: '0%', borderRadius: 12, height: props.height == undefined ? undefined : props.height, width: props.width == undefined ? undefined : props.width }}>
+                    <TextInput
+                        style={{ justifyContent: 'center', ...Platform.select({'ios': { paddingVertical: 4 }}) }}
+                        textAlign={props.textAlign == undefined ? undefined : props.textAlign}
+                        placeholder={props.placeholder == undefined ? '' : props.placeholder}
+                        keyboardType={props.keyboardType == undefined ? 'default' : props.keyboardType}
+                        returnKeyType={props.returnKeyType == undefined ? 'done' : props.returnKeyType}
+                        multiline={props.multiline == undefined ? undefined : props.multiline}
+                        textAlignVertical={props.textAlignVertical == undefined ? undefined : props.textAlignVertical}
+                        onChangeText={input => onChangeText(input)}
+                        value={inputField}
+                    />
                 </View>
             </View>
         </>

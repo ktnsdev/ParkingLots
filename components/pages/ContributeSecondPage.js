@@ -20,7 +20,7 @@ function onSubmitPressed({ navigation }) {
         'Please make sure your provided information are as precise as possible.',
         [
             {
-                text: 'Back to edit',
+                text: 'Let me check again',
                 style: 'cancel'
             },
             {
@@ -39,7 +39,7 @@ function onBackPressed({ navigation }) {
         'All changes will be lost once you re-select a place.',
         [
             {
-                text: 'Back to edit',
+                text: 'Continue contributing',
             },
             {
                 text: 'Go back anyway',
