@@ -5,11 +5,12 @@ import TextWithFont from '../TextWithFont';
 import TitleWithSubtitle from '../TitleWithSubtitle';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import GrayTextBoxWithTitle from '../GrayTextBoxWithTitle';
+import GrayFeeInput from '../GrayFeeInput';
 
 const ParkingFeeConditionAdder = (props) => {
     const [conditions, setCondition] = useState(0);
     const [afterFree, setAfterFree] = useState([]);
-    
+
     function onAddConditionPressed() {
         let newCondition = conditions + 1
         setCondition(newCondition);
@@ -23,7 +24,8 @@ const ParkingFeeConditionAdder = (props) => {
         }
 
         let nextHour = conditions;
-        tempArray.push({'hour': nextHour, 'fee': 0});
+
+        tempArray.push({ 'time': nextHour + props.firstFreeTime + 1, 'fee': 0 });
         setAfterFree(tempArray);
         console.log(afterFree);
     }
@@ -39,11 +41,108 @@ const ParkingFeeConditionAdder = (props) => {
 
     function removeConditionFromArray() {
         let tempArray = [];
-        while (tempArray.length != conditions - 1) {
-            tempArray.push({});
+        for (let i = 0; i < conditions - 1; i++) {
+            tempArray.push(afterFree[i]);
         }
 
         setAfterFree(tempArray);
+    }
+
+    function renderHeader() {
+        return (
+            <>
+                <View style={{
+                    flexDirection: 'row',
+                    marginTop: 3,
+                    marginBottom: 10
+                }}>
+                    <View style={{ width: '49.9%', alignItems: 'center' }}>
+                        <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Parking Time</TextWithFont>
+                    </View>
+
+                    <View style={{ backgroundColor: '#666', width: '0.2%', marginTop: '-1%', marginBottom: '-3%' }} />
+
+                    <View style={{ width: '49.9%', alignItems: 'center' }}>
+                        <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Fee (Per {props.firstUnitTime == 'day' ? 'day' : 'hour'})</TextWithFont>
+                    </View>
+                </View>
+                <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />
+            </>
+        )
+    }
+
+    function renderFirstFreeTime() {
+        return (
+            <>
+                <View style={{
+                    flexDirection: 'row',
+                    marginVertical: 5
+                }}>
+                    <View style={{ width: '49.9%', alignItems: 'center' }}>
+                        {props.firstFreeTime != 0 &&
+                            <>
+                                <View style={{ marginVertical: 6 }}>
+                                    <TextWithFont {...props} fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>First {props.firstFreeTime} {props.firstUnitTime}{props.firstFreeTime > 1 ? 's' : ''}</TextWithFont>
+                                </View>
+                            </>
+                        }
+                    </View>
+
+                    <View style={{ backgroundColor: '#666', width: '0.2%', marginVertical: -5 }} />
+
+                    <View style={{ width: '49.9%', alignItems: 'center' }}>
+                        {props.firstFreeTime != 0 &&
+                            <>
+                                <View style={{ marginVertical: 6 }}>
+                                    <TextWithFont {...props} fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Free</TextWithFont>
+                                </View>
+                            </>
+                        }
+                    </View>
+                </View>
+            </>
+        )
+    }
+
+    function renderConditions() {
+        return (
+            <FlatList
+                style={{ width: '100%' }}
+                scrollEnabled={false}
+                data={afterFree}
+                renderItem={({ item }) => (
+                    <>
+                        <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />
+                        <View style={{
+                            flexDirection: 'row',
+                            marginVertical: 5
+                        }}>
+                            <View style={{ width: '49.9%', alignItems: 'center' }}>
+                                <View style={{ marginVertical: 6, alignItems: 'center' }}>
+                                    {item == afterFree[afterFree.length - 1] && <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>After {props.firstUnitTime == 'day' ? 'day' : 'hour'} {item.time}</TextWithFont>}
+                                    {item != afterFree[afterFree.length - 1] && <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Hour {item.time}</TextWithFont>}
+                                </View>
+                            </View>
+
+                            <View style={{ backgroundColor: '#666', width: '0.2%', marginVertical: -5 }} />
+
+                            <View style={{ width: '49.9%', alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
+                                <GrayFeeInput
+                                    width={50}
+                                    height={28}
+                                    keyboardType={'number-pad'}
+                                    textAlign={'center'}
+                                    multiline={false}
+                                />
+                                <TextWithFont iosFontWeight={'600'} androidFontWeight={'bold'}>  THB</TextWithFont>
+                            </View>
+                        </View>
+
+
+                    </>
+                )}
+            />
+        )
     }
 
     return (
@@ -51,10 +150,9 @@ const ParkingFeeConditionAdder = (props) => {
             <TitleWithSubtitle {...props} title={props.title} subtitle={props.subtitle} titleFontSize={18} />
 
             <View style={{
-                flexDirection: 'row',
                 marginTop: '2%',
                 paddingVertical: '3%',
-                paddingHorizontal: '3%',
+                paddingHorizontal: '4%',
                 backgroundColor: '#f5f5f5',
                 borderRadius: 12,
                 shadowColor: "#333",
@@ -66,59 +164,9 @@ const ParkingFeeConditionAdder = (props) => {
                 shadowRadius: 2,
                 elevation: 7,
             }}>
-                <View style={{ width: '49.9%', alignItems: 'center' }}>
-                    <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Parking Time</TextWithFont>
-                    <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginHorizontal: '-0.5%', marginVertical: '4%' }} />
-                    {props.firstFreeTime != 0 &&
-                        <>
-                            <View style={{ marginVertical: 6 }}>
-                                <TextWithFont {...props} fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>First {props.firstFreeTime} {props.firstUnitTime}{props.firstFreeTime > 1 ? 's' : ''}</TextWithFont>
-                            </View>
-                        </>
-                    }
-
-                    <FlatList
-                        style={{ width: '100%' }}
-                        scrollEnabled={false}
-                        data={afterFree}
-                        renderItem={({ item }) => (
-                            <>
-                                <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: '-0.5%', marginRight: 3, marginVertical: 4 }} />
-                                <View style={{ marginVertical: 6, alignItems: 'center' }}>
-                                    <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>{conditions}</TextWithFont>
-                                </View>
-                            </>
-                        )}
-                    />
-                </View>
-
-                <View style={{ backgroundColor: '#666', width: '0.2%', marginVertical: '-0.5%' }} />
-
-                <View style={{ width: '49.9%', alignItems: 'center' }}>
-                    <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Fee</TextWithFont>
-                    <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginHorizontal: '-0.5%', marginVertical: '4%' }} />
-                    {props.firstFreeTime != 0 &&
-                        <>
-                            <View style={{ marginVertical: 6 }}>
-                                <TextWithFont {...props} fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Free</TextWithFont>
-                            </View>
-                        </>
-                    }
-
-                    <FlatList
-                        style={{ width: '100%' }}
-                        scrollEnabled={false}
-                        data={afterFree}
-                        renderItem={({ item }) => (
-                            <>
-                                <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: '-0.5%', marginRight: 3, marginVertical: 4 }} />
-                                <View style={{ marginVertical: 6, alignItems: 'center' }}>
-                                    <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>{conditions}</TextWithFont>
-                                </View>
-                            </>
-                        )}
-                    />
-                </View>
+                {renderHeader()}
+                {renderFirstFreeTime()}
+                {renderConditions()}
             </View>
 
             <View style={{
