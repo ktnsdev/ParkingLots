@@ -15,7 +15,7 @@ const GrayFeeInput = (props) => {
             <View style={{ marginVertical: '0%' }}>
                 <View style={{ backgroundColor: '#ddd', paddingHorizontal: '5%', paddingVertical: '3%', marginTop: '0%', borderRadius: 12, height: props.height == undefined ? undefined : props.height, width: props.width == undefined ? undefined : props.width }}>
                     <TextInput
-                        style={{ paddingTop: 0, paddingBottom: 0 }}
+                        style={{ justifyContent: 'center', ...Platform.select({'ios': { paddingVertical: 4 }}) }}
                         textAlign={props.textAlign == undefined ? undefined : props.textAlign}
                         placeholder={props.placeholder == undefined ? '' : props.placeholder}
                         keyboardType={props.keyboardType == undefined ? 'default' : props.keyboardType}
