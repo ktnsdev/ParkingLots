@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import GrayTextInputWithTitle, { output } from '../GrayTextInputWIthTitle';
+import GrayTextInputWithTitle from '../GrayTextInputWIthTitle';
 import TextWithFont from '../TextWithFont';
 import ParkingFeeConditionAdder from './ParkingFeeConditionAdder';
 import HourMinuteDayButton from '../HourMinuteDayButton';
