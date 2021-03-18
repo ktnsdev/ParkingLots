@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, FlatList, View, TouchableOpacity, Platform } from 'react-native'
 import GrayDropdownBox from '../GrayDropdownBox';
 import TextWithFont from '../TextWithFont';
@@ -11,9 +11,13 @@ const ParkingFeeConditionAdder = (props) => {
     const [conditions, setCondition] = useState(0);
     const [afterFree, setAfterFree] = useState([]);
 
+    useEffect(() => {
+        console.log(afterFree);
+        console.log('\n');
+    }, [afterFree, conditions])
+
     function onAddConditionPressed() {
-        let newCondition = conditions + 1
-        setCondition(newCondition);
+        setCondition(conditions + 1);
         addConditionToArray();
     }
 
@@ -27,7 +31,6 @@ const ParkingFeeConditionAdder = (props) => {
 
         tempArray.push({ 'time': nextHour + props.firstFreeTime + 1, 'fee': 0 });
         setAfterFree(tempArray);
-        console.log(afterFree);
     }
 
     function onRemoveConditionPressed() {
@@ -43,6 +46,19 @@ const ParkingFeeConditionAdder = (props) => {
         let tempArray = [];
         for (let i = 0; i < conditions - 1; i++) {
             tempArray.push(afterFree[i]);
+        }
+
+        setAfterFree(tempArray);
+    }
+
+    function onFeeIsAdded(data)  {
+        let tempArray = [];
+        for (let i = 0; i < afterFree.length; i++) {
+            if (afterFree[i].time == data.time) {
+                tempArray.push(data);
+            } else {
+                tempArray.push(afterFree[i]);
+            }
         }
 
         setAfterFree(tempArray);
@@ -133,12 +149,12 @@ const ParkingFeeConditionAdder = (props) => {
                                     keyboardType={'number-pad'}
                                     textAlign={'center'}
                                     multiline={false}
+                                    hour={item.time}
+                                    onChangeFee={onFeeIsAdded}
                                 />
                                 <TextWithFont iosFontWeight={'600'} androidFontWeight={'bold'}>  THB</TextWithFont>
                             </View>
                         </View>
-
-
                     </>
                 )}
             />
@@ -168,6 +184,8 @@ const ParkingFeeConditionAdder = (props) => {
                 {renderFirstFreeTime()}
                 {renderConditions()}
             </View>
+
+            
 
             <View style={{
                 paddingHorizontal: '5%',

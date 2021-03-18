@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Platform, TextInput } from 'react-native';
 import TextWithFont from './TextWithFont';
 import TitleWithSubtitle from './TitleWithSubtitle';
@@ -6,8 +6,15 @@ import TitleWithSubtitle from './TitleWithSubtitle';
 const GrayFeeInput = (props) => {
     const [inputField, setInputField] = useState('');
 
-    const onChangeText = (input) => {
+    useEffect(() => {}, [inputField])
+
+    function onChangeText(input) {
         setInputField(input.replace(/[^0-9]/g, ''))
+    }
+
+    function onEndEditing(input) {
+        setInputField(input.replace(/[^0-9]/g, ''))
+        props.onChangeFee({'fee': parseInt(inputField), 'time': props.hour});
     }
 
     return (
@@ -23,6 +30,7 @@ const GrayFeeInput = (props) => {
                         multiline={props.multiline == undefined ? undefined : props.multiline}
                         textAlignVertical={props.textAlignVertical == undefined ? undefined : props.textAlignVertical}
                         onChangeText={input => onChangeText(input)}
+                        onEndEditing={(event) => onEndEditing(event.nativeEvent.text)}
                         value={inputField}
                     />
                 </View>
