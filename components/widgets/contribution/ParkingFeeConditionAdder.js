@@ -144,7 +144,7 @@ const ParkingFeeConditionAdder = (props) => {
                 data={afterFree}
                 renderItem={({ item }) => (
                     <>
-                        {(freeTimeIsZero && item != afterFree[0]) && <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />}
+                        {(!freeTimeIsZero || item != afterFree[0]) && <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />}
                         <View style={{
                             flexDirection: 'row',
                             marginVertical: 5
