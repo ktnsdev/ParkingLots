@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import GrayTextInputWithTitle from '../GrayTextInputWIthTitle';
 import TextWithFont from '../TextWithFont';
@@ -6,19 +6,36 @@ import ParkingFeeConditionAdder from './ParkingFeeConditionAdder';
 import HourMinuteDayButton from '../HourMinuteDayButton';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const ContributeParkingLotFee = () => {
+const ContributeParkingLotFee = (props) => {
     const [unitTime, setUnitTime] = useState('hour');
     const [time, setTime] = useState(0);
     const [charIsValid, setCharIsValid] = useState(true);
     const [timeIsValid, setTimeIsValid] = useState(true);
+    const [inputField, setInputField] = useState('');
     const [inputNotEmpty, setInputNotEmpty] = useState(false);
 
+    useEffect(() => {
+        handleTextInputOutput(inputField);
+        checkTimeIsValid();
+    }, [unitTime, timeIsValid, inputField, charIsValid, inputNotEmpty])
+
+    function getIsCompletelyFilledFromParkingFeeConditionAdder(completelyFilledFromParkingFeeConditionAdder) {
+        props.callbackFunction(completelyFilledFromParkingFeeConditionAdder && charIsValid && timeIsValid && inputNotEmpty);
+    }
+
+    function getInputField(output) {
+        setInputField(output);
+    }
+
     function handleTextInputOutput(output) {
+        setTimeIsValid(true);
+
         if (output == '' || output == undefined) {
             setTime(0);
             setCharIsValid(true);
             setTimeIsValid(true);
             setInputNotEmpty(false);
+            setInputField('');
             return;
         }
 
@@ -30,30 +47,35 @@ const ContributeParkingLotFee = () => {
             return;
         }
 
-        if (!isInt(output)) {
+        if (!isInt(inputField)) {
             setTime(0);
             setCharIsValid(false);
-            setTimeIsValid(true);
             setInputNotEmpty(true);
         } else {
-            setTime(parseInt(output));
             setCharIsValid(true);
             setInputNotEmpty(true);
+        }
+    }
 
-            if (unitTime == 'hour' && (parseInt(output) > 23 || parseInt(output) < 0)) {
-                setTimeIsValid(false);
-            } else if (unitTime == 'minute' && (parseInt(output) > 59 || parseInt(output) < 0)) {
-                setTimeIsValid(false);
-            } else if (unitTime == 'day' && (parseInt(output) > 30 || parseInt(output) < 0)) {
-                setTimeIsValid(false);
-            } else {
-                setTimeIsValid(true);
-            }
+    function checkTimeIsValid() {
+        if (unitTime == 'hour' && (parseInt(inputField) > 23 || parseInt(inputField) < 0)) {
+            setTimeIsValid(false);
+            setTime(0);
+        } else if (unitTime == 'minute' && (parseInt(inputField) > 59 || parseInt(inputField) < 0)) {
+            setTimeIsValid(false);
+            setTime(0);
+        } else if (unitTime == 'day' && (parseInt(inputField) > 30 || parseInt(inputField) < 0)) {
+            setTimeIsValid(false);
+            setTime(0);
+        } else {
+            setTimeIsValid(true);
+            setTime(parseInt(inputField))
         }
     }
 
     const getUnitTime = (data) => {
         setUnitTime(data);
+        setTimeIsValid(true);
     }
 
     function isInt(str) {
@@ -69,6 +91,7 @@ const ContributeParkingLotFee = () => {
                         subtitle={'Provide the information about the parking fees below.'}
                         firstFreeTime={time}
                         firstUnitTime={unitTime}
+                        callbackFunction={getIsCompletelyFilledFromParkingFeeConditionAdder}
                     />
                 </View>
 
@@ -86,7 +109,7 @@ const ContributeParkingLotFee = () => {
                     titleFontSize={18}
                     placeholder={'Required, must be a number'}
                     keyboardType={'number-pad'}
-                    onChangeText={input => handleTextInputOutput(input)}
+                    onChangeText={input => getInputField(input)}
                     returnKeyType='done'
                     charIsValid={charIsValid}
                     timeIsValid={timeIsValid}

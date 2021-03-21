@@ -10,11 +10,40 @@ import GrayFeeInput from '../GrayFeeInput';
 const ParkingFeeConditionAdder = (props) => {
     const [conditions, setCondition] = useState(0);
     const [afterFree, setAfterFree] = useState([]);
+    const [prevTime, setPrevTime] = useState(props.firstFreeTime);
+    var freeTimeIsZero = false;
+
+    if (props.firstFreeTime == 0) {
+        freeTimeIsZero = true;
+    }
 
     useEffect(() => {
+        if (conditions == 0) {
+            onAddConditionPressed();
+        }
+
+        if (props.firstFreeTime != prevTime) {
+            setPrevTime(props.firstFreeTime);
+            setAfterFree([]);
+            setCondition(0);
+        }
+
+        let tempCompletelyFilled = true;
+        for (let i = 0; i < afterFree.length; i++) {
+            if (afterFree[i].fee == 0 || isNaN(afterFree[i].fee) || afterFree[i] == undefined) {
+                tempCompletelyFilled = false;
+                break;
+            }
+        }
+
         console.log(afterFree);
-        console.log('\n');
-    }, [afterFree, conditions])
+
+        returnCompletelyFilled(tempCompletelyFilled);
+    }, [afterFree, conditions, props.firstFreeTime])
+
+    function returnCompletelyFilled(tempCompletelyFilled) {
+        props.callbackFunction(tempCompletelyFilled);
+    }
 
     function onAddConditionPressed() {
         setCondition(conditions + 1);
@@ -34,6 +63,10 @@ const ParkingFeeConditionAdder = (props) => {
     }
 
     function onRemoveConditionPressed() {
+        if (conditions == 1) {
+            return;
+        }
+
         if (conditions == 0) {
             return;
         }
@@ -51,7 +84,7 @@ const ParkingFeeConditionAdder = (props) => {
         setAfterFree(tempArray);
     }
 
-    function onFeeIsAdded(data)  {
+    function onFeeIsAdded(data) {
         let tempArray = [];
         for (let i = 0; i < afterFree.length; i++) {
             if (afterFree[i].time == data.time) {
@@ -88,36 +121,38 @@ const ParkingFeeConditionAdder = (props) => {
     }
 
     function renderFirstFreeTime() {
-        return (
-            <>
-                <View style={{
-                    flexDirection: 'row',
-                    marginVertical: 5
-                }}>
-                    <View style={{ width: '49.9%', alignItems: 'center' }}>
-                        {props.firstFreeTime != 0 &&
-                            <>
-                                <View style={{ marginVertical: 6 }}>
-                                    <TextWithFont {...props} fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>First {props.firstFreeTime} {props.firstUnitTime}{props.firstFreeTime > 1 ? 's' : ''}</TextWithFont>
-                                </View>
-                            </>
-                        }
-                    </View>
+        if (!freeTimeIsZero) {
+            return (
+                <>
+                    <View style={{
+                        flexDirection: 'row',
+                        marginVertical: 5
+                    }}>
+                        <View style={{ width: '49.9%', alignItems: 'center' }}>
+                            {props.firstFreeTime != 0 &&
+                                <>
+                                    <View style={{ marginVertical: 6 }}>
+                                        <TextWithFont {...props} fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>First {props.firstFreeTime} {props.firstUnitTime}{props.firstFreeTime > 1 ? 's' : ''}</TextWithFont>
+                                    </View>
+                                </>
+                            }
+                        </View>
 
-                    <View style={{ backgroundColor: '#666', width: '0.2%', marginVertical: -5 }} />
+                        <View style={{ backgroundColor: '#666', width: '0.2%', marginVertical: -5 }} />
 
-                    <View style={{ width: '49.9%', alignItems: 'center' }}>
-                        {props.firstFreeTime != 0 &&
-                            <>
-                                <View style={{ marginVertical: 6 }}>
-                                    <TextWithFont {...props} fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Free</TextWithFont>
-                                </View>
-                            </>
-                        }
+                        <View style={{ width: '49.9%', alignItems: 'center' }}>
+                            {props.firstFreeTime != 0 &&
+                                <>
+                                    <View style={{ marginVertical: 6 }}>
+                                        <TextWithFont {...props} fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Free</TextWithFont>
+                                    </View>
+                                </>
+                            }
+                        </View>
                     </View>
-                </View>
-            </>
-        )
+                </>
+            )
+        }
     }
 
     function renderConditions() {
@@ -128,7 +163,7 @@ const ParkingFeeConditionAdder = (props) => {
                 data={afterFree}
                 renderItem={({ item }) => (
                     <>
-                        <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />
+                        {(!freeTimeIsZero || item != afterFree[0]) && <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />}
                         <View style={{
                             flexDirection: 'row',
                             marginVertical: 5
@@ -136,7 +171,7 @@ const ParkingFeeConditionAdder = (props) => {
                             <View style={{ width: '49.9%', alignItems: 'center' }}>
                                 <View style={{ marginVertical: 6, alignItems: 'center' }}>
                                     {item == afterFree[afterFree.length - 1] && <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>After {props.firstUnitTime == 'day' ? 'day' : 'hour'} {item.time}</TextWithFont>}
-                                    {item != afterFree[afterFree.length - 1] && <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Hour {item.time}</TextWithFont>}
+                                    {item != afterFree[afterFree.length - 1] && <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>{props.firstUnitTime == 'day' ? 'Day' : 'Hour'} {item.time}</TextWithFont>}
                                 </View>
                             </View>
 
@@ -185,7 +220,7 @@ const ParkingFeeConditionAdder = (props) => {
                 {renderConditions()}
             </View>
 
-            
+
 
             <View style={{
                 paddingHorizontal: '5%',
