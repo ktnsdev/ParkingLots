@@ -8,7 +8,7 @@ const HourMinuteDayButton = ({ initial, callbackFunction }) => {
         'inactive': '#e6e6e6'
     }
 
-    const textColour ={
+    const textColour = {
         'active': '#ff8f17',
         'inactive': '#c9c9c9'
     }
