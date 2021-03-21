@@ -10,7 +10,7 @@ import GrayFeeInput from '../GrayFeeInput';
 const ParkingFeeConditionAdder = (props) => {
     const [conditions, setCondition] = useState(0);
     const [afterFree, setAfterFree] = useState([]);
-    const [completelyFilled, setCompletelyFilled] = useState(false);
+    const [prevTime, setPrevTime] = useState(props.firstFreeTime);
     var freeTimeIsZero = false;
 
     if (props.firstFreeTime == 0) {
@@ -18,13 +18,32 @@ const ParkingFeeConditionAdder = (props) => {
     }
 
     useEffect(() => {
-        if (conditions == 0 && freeTimeIsZero) {
+        if (conditions == 0) {
             onAddConditionPressed();
         }
 
+        if (props.firstFreeTime != prevTime) {
+            setPrevTime(props.firstFreeTime);
+            setAfterFree([]);
+            setCondition(0);
+        }
+
+        let tempCompletelyFilled = true;
+        for (let i = 0; i < afterFree.length; i++) {
+            if (afterFree[i].fee == 0 || isNaN(afterFree[i].fee) || afterFree[i] == undefined) {
+                tempCompletelyFilled = false;
+                break;
+            }
+        }
+
         console.log(afterFree);
-        console.log('\n');
-    }, [afterFree, conditions])
+
+        returnCompletelyFilled(tempCompletelyFilled);
+    }, [afterFree, conditions, props.firstFreeTime])
+
+    function returnCompletelyFilled(tempCompletelyFilled) {
+        props.callbackFunction(tempCompletelyFilled);
+    }
 
     function onAddConditionPressed() {
         setCondition(conditions + 1);
@@ -44,7 +63,7 @@ const ParkingFeeConditionAdder = (props) => {
     }
 
     function onRemoveConditionPressed() {
-        if (freeTimeIsZero && conditions == 1) {
+        if (conditions == 1) {
             return;
         }
 
