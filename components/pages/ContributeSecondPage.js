@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useRef, useState } from 'react';
-import { SafeAreaView, Text, StyleSheet, View, Platform, TextInput, TouchableOpacity, ScrollView, Alert, BackHandler, Animated, Dimensions } from 'react-native';
+import { SafeAreaView, Text, StyleSheet, View, Platform, TextInput, TouchableOpacity, ScrollView, Alert, BackHandler, Animated, Dimensions, Keyboard } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MapView, { Marker } from 'react-native-maps';
 import GrayTextBoxWithTitle from '../widgets/GrayTextBoxWithTitle';
@@ -14,66 +14,7 @@ const HEADER_MAX_HEIGHT = screenHeight * 0.25;
 const HEADER_MIN_HEIGHT = 100;
 const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
-function onSubmitPressed({ navigation }) {
-    Alert.alert(
-        'Submit contribution?',
-        'Please make sure your provided information are as precise as possible.',
-        [
-            {
-                text: 'Let me check again',
-                style: 'cancel'
-            },
-            {
-                text: 'Submit',
-                onPress: () => goHome({ navigation }),
-                style: 'default'
-            },
-        ],
-        { cancelable: true }
-    );
-}
-
-function onBackPressed({ navigation }) {
-    Alert.alert(
-        'Do you want to go back?',
-        'All changes will be lost once you re-select a place.',
-        [
-            {
-                text: 'Continue contributing',
-            },
-            {
-                text: 'Go back anyway',
-                onPress: () => goBack({ navigation }),
-                style: 'destructive'
-            },
-        ],
-        { cancelable: true }
-    );
-}
-
-function goBack({ navigation }) {
-    navigation.goBack();
-}
-
-function goHome({ navigation }) {
-    navigation.pop(2)
-}
-
 const ContributeSecondPage = ({ route, navigation }) => {
-    useEffect(() => {
-        const backAction = () => {
-            onBackPressed({ navigation })
-            return true;
-        };
-
-        const backHandler = BackHandler.addEventListener(
-            "hardwareBackPress",
-            backAction
-        );
-
-        return () => backHandler.remove();
-    }, []);
-
     const region = {
         latitude: route.params.paramKey.en.geometry.location.lat,
         longitude: route.params.paramKey.en.geometry.location.lng,
@@ -84,6 +25,126 @@ const ContributeSecondPage = ({ route, navigation }) => {
     const [headerWidth, setHeaderWidth] = useState(0);
     const [headerHeight, setHeaderHeight] = useState(0);
     const [isFree, setIsFree] = useState(false);
+    const [completelyFilled, setCompletelyFilled] = useState(false);
+    const [submitIsPressed, setSubmitIsPressed] = useState(false);
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow',
+            () => {
+                setKeyboardVisible(true); // or some other action
+            }
+        );
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                setKeyboardVisible(false); // or some other action
+            }
+        );
+
+        const backAction = () => {
+            onBackPressed({ navigation })
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            backAction
+        );
+
+        if (completelyFilled && submitIsPressed) {
+            submitAlert({ navigation });
+            setSubmitIsPressed(false);
+        } else if (!completelyFilled && submitIsPressed) {
+            notFinishedAlert();
+            setSubmitIsPressed(false);
+        }
+
+        return () => {
+            backHandler.remove();
+            keyboardDidHideListener.remove();
+            keyboardDidShowListener.remove();
+        }
+    }, [completelyFilled]);
+
+    function getIsCompletelyFilled(completelyFilledFromContributeParkingLotFee) {
+        setCompletelyFilled(completelyFilledFromContributeParkingLotFee);
+    }
+
+    function onSubmitPressed({ navigation }) {
+        if (isKeyboardVisible) {
+            Keyboard.dismiss();
+            setSubmitIsPressed(true);
+        } else {
+            if (completelyFilled) {
+                submitAlert({ navigation });
+                setSubmitIsPressed(false);
+            } else if (!completelyFilled) {
+                notFinishedAlert();
+                setSubmitIsPressed(false);
+            }
+        }
+    }
+
+    function submitAlert({ navigation }) {
+        Alert.alert(
+            'Submit contribution?',
+            'Please make sure your provided information are as precise as possible.',
+            [
+                {
+                    text: 'Let me check again',
+                    style: 'cancel'
+                },
+                {
+                    text: 'Submit',
+                    onPress: () => goHome({ navigation }),
+                    style: 'default'
+                },
+            ],
+            { cancelable: true }
+        );
+    }
+
+    function notFinishedAlert() {
+        Alert.alert(
+            'You\'re not done!',
+            'Please make sure you have filled in all required fields',
+            [
+                {
+                    text: 'OK',
+                    style: 'default'
+                },
+            ],
+            { cancelable: true }
+        );
+    }
+
+    function onBackPressed({ navigation }) {
+        Alert.alert(
+            'Do you want to go back?',
+            'All changes will be lost once you re-select a place.',
+            [
+                {
+                    text: 'Continue contributing',
+                },
+                {
+                    text: 'Go back anyway',
+                    onPress: () => goBack({ navigation }),
+                    style: 'destructive'
+                },
+            ],
+            { cancelable: true }
+        );
+    }
+
+    function goBack({ navigation }) {
+        navigation.goBack();
+    }
+
+    function goHome({ navigation }) {
+        navigation.pop(2)
+    }
 
     //Animated Value
     const scrollY = useRef(new Animated.Value(0)).current;
@@ -115,8 +176,6 @@ const ContributeSecondPage = ({ route, navigation }) => {
         const { x, y, width, height } = layout;
         setHeaderHeight(height);
         setHeaderWidth(width);
-
-        console.log('setHeight : ' + height)
     }
 
     const getIsFreeFromYesNoButton = (data) => {
@@ -126,7 +185,9 @@ const ContributeSecondPage = ({ route, navigation }) => {
     function renderParkingFeeContribution() {
         return (
             <>
-                <ContributeParkingLotFee />
+                <ContributeParkingLotFee
+                    callbackFunction={getIsCompletelyFilled}
+                />
             </>
         )
     }
@@ -158,19 +219,29 @@ const ContributeSecondPage = ({ route, navigation }) => {
                                 title={'Does ' + route.params.paramKey.en.name + ' charge you for parking?'}
                                 subtitle={'If the place only offers you free parking for several hours, please select "Yes".'}
                             />
+
                             <View style={{ marginVertical: '2%' }}>
                                 <YesNoButton initial={'y'} callbackFunction={getIsFreeFromYesNoButton} />
                             </View>
+
+                            <View style={styles.lineBreak} />
                             {isFree && (
                                 <>
-                                    <View style={styles.lineBreak} />
                                     {renderParkingFeeContribution()}
                                 </>
-                            )
-                            }
+                            )}
                         </View>
 
-                        <TextWithFont iosFontWeight={'bold'} androidFontWeight={'bold'} fontSize={22} style={styles.contentTitleText}>Parking Lot Details</TextWithFont>
+                        <TextWithFont iosFontWeight={'bold'} androidFontWeight={'bold'} fontSize={22} style={{
+                            ...Platform.select({
+                                'ios': {
+                                    marginTop: isFree ? '0%' : '-3%'
+                                },
+                                'android': {
+                                    marginTop: isFree ? '3%' : '-3%'
+                                }
+                            })
+                        }}>Parking Lot Details</TextWithFont>
                         <View
                             pointerEvents='none'
                             style={{
@@ -331,16 +402,6 @@ const styles = StyleSheet.create({
         width: 60,
         alignItems: 'flex-end',
         justifyContent: 'center'
-    },
-    contentTitleText: {
-        ...Platform.select({
-            'ios': {
-                marginTop: '1%'
-            },
-            'android': {
-                marginTop: '4%'
-            }
-        })
     },
     placeDetailsContainer: {
         paddingHorizontal: '5%',
