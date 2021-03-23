@@ -25,7 +25,6 @@ const ContributeSecondPage = ({ route, navigation }) => {
 
     useEffect(() => {
         reformatContributionData();
-        console.log(contributionData)
 
         const backAction = () => {
             onBackPressed({ navigation })
@@ -36,25 +35,20 @@ const ContributeSecondPage = ({ route, navigation }) => {
             "hardwareBackPress",
             backAction
         );
-        
-        console.log(route.params.paramKey);
 
         return () => backHandler.remove();
     }, []);
 
     //REFORMAT CONTRIBUTION DATA; PREPARE TO SEND INTO THE SERVER
     function reformatContributionData() {
+        console.log(route.params.paramKey.contributionData.data)
         let tempAfterFree = {};
-        console.log('contribution data');
-        console.log(route.params.paramKey.contributionData);
 
-        /*
-        if (route.params.paramKey.contributionData != {}) {
+        if (!(Object.keys(route.params.paramKey.contributionData).length === 0)) {
             for (let i = 0; i < route.params.paramKey.contributionData.data.length; i++) {
                 tempAfterFree[route.params.paramKey.contributionData.data[i].time] = route.params.paramKey.contributionData.data[i].fee
             }
         }
-        */
 
         setContributionData({
             'name': {
@@ -78,13 +72,12 @@ const ContributeSecondPage = ({ route, navigation }) => {
             'types': route.params.paramKey.placeDetails.en.types,
             'place_id': route.params.paramKey.placeDetails.place_id,
             'price': {
-                'free': route.params.paramKey.contributionData == {} ? true : false,
-                'after_free': {}
+                'free': Object.keys(route.params.paramKey.contributionData).length === 0 ? true : false,
+                'after_free': tempAfterFree
             },
             'verified': false,
             'last_updated': (new Date()).toISOString()
         })
-        console.log(contributionData);
     }
 
     //HANDLE BACK BUTTON
@@ -132,8 +125,6 @@ const ContributeSecondPage = ({ route, navigation }) => {
         const { x, y, width, height } = layout;
         setHeaderHeight(height);
         setHeaderWidth(width);
-
-        console.log('setHeight : ' + height)
     }
 
     function renderContent() {
