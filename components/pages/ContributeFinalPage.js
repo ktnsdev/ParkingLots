@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import MapView, { Marker } from 'react-native-maps';
 import GrayTextBoxWithTitle from '../widgets/GrayTextBoxWithTitle';
 import TextWithFont from '../widgets/TextWithFont';
+import ParkingFeeTable from '../widgets/parkingfee/ParkingFeeTable'
 
 const screenWidth = Math.round(Dimensions.get('window').width);
 const screenHeight = Math.round(Dimensions.get('window').height);
@@ -43,10 +44,14 @@ const ContributeSecondPage = ({ route, navigation }) => {
     function reformatContributionData() {
         console.log(route.params.paramKey.contributionData.data)
         let tempAfterFree = {};
+        let minuteMultiplier = 1;
+
+        if (route.params.paramKey.contributionData.unitTime == 'hour') minuteMultiplier = 60;
+        else if (route.params.paramKey.contributionData.unitTime == 'day') minuteMultiplier = 1440;
 
         if (!(Object.keys(route.params.paramKey.contributionData).length === 0)) {
             for (let i = 0; i < route.params.paramKey.contributionData.data.length; i++) {
-                tempAfterFree[route.params.paramKey.contributionData.data[i].time] = route.params.paramKey.contributionData.data[i].fee
+                tempAfterFree[route.params.paramKey.contributionData.data[i].time * minuteMultiplier] = route.params.paramKey.contributionData.data[i].fee
             }
         }
 
@@ -125,6 +130,14 @@ const ContributeSecondPage = ({ route, navigation }) => {
         const { x, y, width, height } = layout;
         setHeaderHeight(height);
         setHeaderWidth(width);
+    }
+
+    function renderParkingFeeTable() {
+        return (
+            <>
+                <ParkingFeeTable/>
+            </>
+        )
     }
 
     function renderContent() {
