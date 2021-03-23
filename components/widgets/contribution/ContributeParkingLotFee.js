@@ -25,7 +25,7 @@ const ContributeParkingLotFee = (props) => {
     }
 
     function getContributionData(contributionDataFromParkingFeeConditionAdder) {
-        props.handleContributionData({'data': contributionDataFromParkingFeeConditionAdder, 'unitTime': unitTime});
+        props.handleContributionData({'data': contributionDataFromParkingFeeConditionAdder, 'unitTime': unitTime, 'firstFreeTime': time});
     }
 
     function getInputField(output) {
