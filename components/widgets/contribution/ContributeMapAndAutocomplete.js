@@ -135,7 +135,7 @@ class ContributeMapAndAutocomplete extends Component {
     }
 
     nextPage() {
-        this.props.navigation.navigate('ContributeSecondPage', { paramKey: {'en': this.state.selectedPlaceDetailsEN, 'th': this.state.selectedPlaceDetailsTH }});
+        this.props.navigation.navigate('ContributeSecondPage', { paramKey: {'en': this.state.selectedPlaceDetailsEN, 'th': this.state.selectedPlaceDetailsTH, 'place_id': this.state.selectedPlaceId }});
     }
 
     render() {
