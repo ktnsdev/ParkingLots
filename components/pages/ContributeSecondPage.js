@@ -84,7 +84,7 @@ const ContributeSecondPage = ({ route, navigation }) => {
         if (isFree) {
             setContributionData({'data': {}});
         } else {
-            setContributionData({'data': contributionDataFromContributeParkingLotFee})
+            setContributionData(contributionDataFromContributeParkingLotFee)
         }
     }
 
