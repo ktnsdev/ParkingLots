@@ -18,14 +18,10 @@ const ParkingFeeConditionAdder = (props) => {
     }
 
     useEffect(() => {
+        if (props.shouldRerender == true || props.firstFreeTime != prevTime) forceUpdate();
+
         if (conditions == 0) {
             onAddConditionPressed();
-        }
-
-        if (props.firstFreeTime != prevTime) {
-            setPrevTime(props.firstFreeTime);
-            setAfterFree([]);
-            setCondition(0);
         }
 
         let tempCompletelyFilled = true;
@@ -36,13 +32,24 @@ const ParkingFeeConditionAdder = (props) => {
             }
         }
 
-        console.log(afterFree);
+        returnContributionData(afterFree);
 
         returnCompletelyFilled(tempCompletelyFilled);
-    }, [afterFree, conditions, props.firstFreeTime])
+    }, [afterFree, conditions, props.firstFreeTime, props.shouldRerender])
+
+    function forceUpdate() {
+        setPrevTime(props.firstFreeTime);
+        setAfterFree([]);
+        setCondition(0);
+        props.handleRerenderComplete();
+    }
 
     function returnCompletelyFilled(tempCompletelyFilled) {
-        props.callbackFunction(tempCompletelyFilled);
+        props.handleIsCompletelyFilled(tempCompletelyFilled);
+    }
+
+    function returnContributionData(contributionData) {
+        props.handleContributionData(contributionData);
     }
 
     function onAddConditionPressed() {
@@ -56,9 +63,15 @@ const ParkingFeeConditionAdder = (props) => {
             tempArray.push(afterFree[i]);
         }
 
-        let nextHour = conditions;
+        let next = conditions;
 
-        tempArray.push({ 'time': nextHour + props.firstFreeTime + 1, 'fee': 0 });
+        if (conditions == 0) {
+            if (props.firstUnitTime != 'minute') tempArray.push({ 'time': next + props.firstFreeTime + 1, 'fee': 0 });
+            else tempArray.push({'time': 1, 'fee': 0})
+        } else {
+            tempArray.push({'time': afterFree[afterFree.length - 1].time + 1, 'fee': 0})
+        }
+
         setAfterFree(tempArray);
     }
 
