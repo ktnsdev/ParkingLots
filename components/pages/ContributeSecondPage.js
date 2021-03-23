@@ -28,6 +28,7 @@ const ContributeSecondPage = ({ route, navigation }) => {
     const [completelyFilled, setCompletelyFilled] = useState(false);
     const [submitIsPressed, setSubmitIsPressed] = useState(false);
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+    const [contributionData, setContributionData] = useState({});
 
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener(
@@ -53,11 +54,17 @@ const ContributeSecondPage = ({ route, navigation }) => {
             backAction
         );
 
-        if (completelyFilled && submitIsPressed) {
+        //HANDLE SUBMIT BUTTON WHEN KEYBOARD IS VISIBLE
+        if (!isFree && submitIsPressed) {
+            if (completelyFilled) {
+                submitAlert({ navigation });
+                setSubmitIsPressed(false);
+            } else {
+                notFinishedAlert();
+                setSubmitIsPressed(false);
+            }
+        } else if (isFree && submitIsPressed) {
             submitAlert({ navigation });
-            setSubmitIsPressed(false);
-        } else if (!completelyFilled && submitIsPressed) {
-            notFinishedAlert();
             setSubmitIsPressed(false);
         }
 
@@ -66,24 +73,43 @@ const ContributeSecondPage = ({ route, navigation }) => {
             keyboardDidHideListener.remove();
             keyboardDidShowListener.remove();
         }
-    }, [completelyFilled]);
+    }, [completelyFilled, contributionData, isFree]);
 
+    //GET DATA FROM CHILDREN
     function getIsCompletelyFilled(completelyFilledFromContributeParkingLotFee) {
         setCompletelyFilled(completelyFilledFromContributeParkingLotFee);
     }
 
-    function onSubmitPressed({ navigation }) {
-        if (isKeyboardVisible) {
-            Keyboard.dismiss();
-            setSubmitIsPressed(true);
+    function getContributionData(contributionDataFromContributeParkingLotFee) {
+        if (isFree) {
+            setContributionData({'data': {}});
         } else {
-            if (completelyFilled) {
-                submitAlert({ navigation });
-                setSubmitIsPressed(false);
-            } else if (!completelyFilled) {
-                notFinishedAlert();
-                setSubmitIsPressed(false);
+            setContributionData({'data': contributionDataFromContributeParkingLotFee})
+        }
+    }
+
+    function getIsFreeFromYesNoButton(data) {
+        setIsFree(!data);
+    }
+
+    //HANDLE SUBMIT BUTTON
+    function onSubmitPressed({ navigation }) {
+        if (!isFree) {
+            if (isKeyboardVisible) {
+                Keyboard.dismiss();
+                setSubmitIsPressed(true);
+            } else {
+                if (completelyFilled) {
+                    submitAlert({ navigation });
+                    setSubmitIsPressed(false);
+                } else if (!completelyFilled) {
+                    notFinishedAlert();
+                    setSubmitIsPressed(false);
+                }
             }
+        } else {
+            submitAlert({ navigation });
+            setSubmitIsPressed(false);
         }
     }
 
@@ -98,7 +124,7 @@ const ContributeSecondPage = ({ route, navigation }) => {
                 },
                 {
                     text: 'Submit',
-                    onPress: () => goHome({ navigation }),
+                    onPress: () => goNext({ navigation }),
                     style: 'default'
                 },
             ],
@@ -142,11 +168,11 @@ const ContributeSecondPage = ({ route, navigation }) => {
         navigation.goBack();
     }
 
-    function goHome({ navigation }) {
-        navigation.pop(2)
+    function goNext() {
+        navigation.navigate('ContributeFinalPage', { paramKey: {'contributionData': contributionData, 'placeDetails': route.params.paramKey}});
     }
 
-    //Animated Value
+    //ANIMATED VALUE
     const scrollY = useRef(new Animated.Value(0)).current;
     const descriptionOpacity = scrollY.interpolate({
         inputRange: [0, HEADER_MAX_HEIGHT - 200],
@@ -178,15 +204,12 @@ const ContributeSecondPage = ({ route, navigation }) => {
         setHeaderWidth(width);
     }
 
-    const getIsFreeFromYesNoButton = (data) => {
-        setIsFree(data);
-    }
-
     function renderParkingFeeContribution() {
         return (
             <>
                 <ContributeParkingLotFee
-                    callbackFunction={getIsCompletelyFilled}
+                    handleIsCompletelyFilled={getIsCompletelyFilled}
+                    handleContributionData={getContributionData}
                 />
             </>
         )
@@ -221,11 +244,11 @@ const ContributeSecondPage = ({ route, navigation }) => {
                             />
 
                             <View style={{ marginVertical: '2%' }}>
-                                <YesNoButton initial={'y'} callbackFunction={getIsFreeFromYesNoButton} />
+                                <YesNoButton initial={'y'} handleSelection={getIsFreeFromYesNoButton} />
                             </View>
 
                             <View style={styles.lineBreak} />
-                            {isFree && (
+                            {!isFree && (
                                 <>
                                     {renderParkingFeeContribution()}
                                 </>
@@ -235,10 +258,10 @@ const ContributeSecondPage = ({ route, navigation }) => {
                         <TextWithFont iosFontWeight={'bold'} androidFontWeight={'bold'} fontSize={22} style={{
                             ...Platform.select({
                                 'ios': {
-                                    marginTop: isFree ? '0%' : '-3%'
+                                    marginTop: !isFree ? '0%' : '-3%'
                                 },
                                 'android': {
-                                    marginTop: isFree ? '3%' : '-3%'
+                                    marginTop: !isFree ? '3%' : '-3%'
                                 }
                             })
                         }}>Parking Lot Details</TextWithFont>

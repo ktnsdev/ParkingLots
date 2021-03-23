@@ -13,6 +13,7 @@ const ContributeParkingLotFee = (props) => {
     const [timeIsValid, setTimeIsValid] = useState(true);
     const [inputField, setInputField] = useState('');
     const [inputNotEmpty, setInputNotEmpty] = useState(false);
+    const [parkingFeeConditionAdderShouldUpdate, setParkingFeeConditionAdderShouldUpdate] = useState(false);
 
     useEffect(() => {
         handleTextInputOutput(inputField);
@@ -20,11 +21,19 @@ const ContributeParkingLotFee = (props) => {
     }, [unitTime, timeIsValid, inputField, charIsValid, inputNotEmpty])
 
     function getIsCompletelyFilledFromParkingFeeConditionAdder(completelyFilledFromParkingFeeConditionAdder) {
-        props.callbackFunction(completelyFilledFromParkingFeeConditionAdder && charIsValid && timeIsValid && inputNotEmpty);
+        props.handleIsCompletelyFilled(completelyFilledFromParkingFeeConditionAdder && charIsValid && timeIsValid && inputNotEmpty);
+    }
+
+    function getContributionData(contributionDataFromParkingFeeConditionAdder) {
+        props.handleContributionData(contributionDataFromParkingFeeConditionAdder);
     }
 
     function getInputField(output) {
         setInputField(output);
+    }
+
+    function handleRerenderComplete() {
+        setParkingFeeConditionAdderShouldUpdate(false);
     }
 
     function handleTextInputOutput(output) {
@@ -75,6 +84,7 @@ const ContributeParkingLotFee = (props) => {
 
     const getUnitTime = (data) => {
         setUnitTime(data);
+        setParkingFeeConditionAdderShouldUpdate(true);
         setTimeIsValid(true);
     }
 
@@ -91,7 +101,10 @@ const ContributeParkingLotFee = (props) => {
                         subtitle={'Provide the information about the parking fees below.'}
                         firstFreeTime={time}
                         firstUnitTime={unitTime}
-                        callbackFunction={getIsCompletelyFilledFromParkingFeeConditionAdder}
+                        handleIsCompletelyFilled={getIsCompletelyFilledFromParkingFeeConditionAdder}
+                        handleContributionData={getContributionData}
+                        shouldRerender={parkingFeeConditionAdderShouldUpdate}
+                        handleRerenderComplete={handleRerenderComplete}
                     />
                 </View>
 
