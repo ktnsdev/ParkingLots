@@ -42,18 +42,22 @@ const ContributeSecondPage = ({ route, navigation }) => {
 
     //REFORMAT CONTRIBUTION DATA; PREPARE TO SEND INTO THE SERVER
     function reformatContributionData() {
-        console.log(route.params.paramKey.contributionData.data)
         let tempAfterFree = {};
         let minuteMultiplier = 1;
 
         if (route.params.paramKey.contributionData.unitTime == 'hour') minuteMultiplier = 60;
         else if (route.params.paramKey.contributionData.unitTime == 'day') minuteMultiplier = 1440;
+        else if (route.params.paramKey.contributionData.unitTime == 'minute') minuteMultiplier = 60; // Even if the user choose minute, the conditions are always in hour
 
         if (!(Object.keys(route.params.paramKey.contributionData).length === 0)) {
             for (let i = 0; i < route.params.paramKey.contributionData.data.length; i++) {
                 tempAfterFree[route.params.paramKey.contributionData.data[i].time * minuteMultiplier] = route.params.paramKey.contributionData.data[i].fee
             }
         }
+
+        if (route.params.paramKey.contributionData.unitTime == 'minute') minuteMultiplier = 1; // Now calculating first free time, so minute nultiplier must be 1 if the user selected minute
+
+        let tempFirstFreeTime = Object.keys(route.params.paramKey.contributionData).length === 0 ? 0 : route.params.paramKey.contributionData.firstFreeTime * minuteMultiplier
 
         setContributionData({
             'name': {
@@ -77,6 +81,7 @@ const ContributeSecondPage = ({ route, navigation }) => {
             'types': route.params.paramKey.placeDetails.en.types,
             'place_id': route.params.paramKey.placeDetails.place_id,
             'price': {
+                'first_free': tempFirstFreeTime,
                 'free': Object.keys(route.params.paramKey.contributionData).length === 0 ? true : false,
                 'after_free': tempAfterFree
             },
@@ -135,7 +140,9 @@ const ContributeSecondPage = ({ route, navigation }) => {
     function renderParkingFeeTable() {
         return (
             <>
-                <ParkingFeeTable/>
+                <ParkingFeeTable
+                    price={contributionData.price}
+                />
             </>
         )
     }
@@ -161,6 +168,8 @@ const ContributeSecondPage = ({ route, navigation }) => {
                             }
                         })
                     }]}>
+
+                        {!(Object.keys(contributionData).length === 0) && renderParkingFeeTable()}
 
                         <Text style={styles.contentTitleText}>Parking Lot Details</Text>
                         <View
