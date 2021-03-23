@@ -3,6 +3,7 @@ import { SafeAreaView, Text, StyleSheet, View, Platform, TextInput, TouchableOpa
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MapView, { Marker } from 'react-native-maps';
 import GrayTextBoxWithTitle from '../widgets/GrayTextBoxWithTitle';
+import TextWithFont from '../widgets/TextWithFont';
 
 const screenWidth = Math.round(Dimensions.get('window').width);
 const screenHeight = Math.round(Dimensions.get('window').height);
@@ -10,53 +11,22 @@ const HEADER_MAX_HEIGHT = screenHeight * 0.25;
 const HEADER_MIN_HEIGHT = 100;
 const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
-function onSubmitPressed({ navigation }) {
-    Alert.alert(
-        'Submit contribution?',
-        'Please make sure your provided information are as precise as possible.',
-        [
-            {
-                text: 'Back to edit',
-                style: 'cancel'
-            },
-            {
-                text: 'Submit',
-                onPress: () => goHome({ navigation }),
-                style: 'default'
-            },
-        ],
-        { cancelable: true }
-    );
-}
-
-function onBackPressed({ navigation }) {
-    Alert.alert(
-        'Do you want to go back?',
-        'All changes will be lost once you re-select a place.',
-        [
-            {
-                text: 'Back to edit',
-            },
-            {
-                text: 'Go back anyway',
-                onPress: () => goBack({ navigation }),
-                style: 'destructive'
-            },
-        ],
-        { cancelable: true }
-    );
-}
-
-function goBack({ navigation }) {
-    navigation.goBack();
-}
-
-function goHome({ navigation }) {
-    navigation.pop(2)
-}
-
 const ContributeSecondPage = ({ route, navigation }) => {
+    const region = {
+        latitude: route.params.paramKey.placeDetails.en.geometry.location.lat,
+        longitude: route.params.paramKey.placeDetails.en.geometry.location.lng,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005
+    }
+
+    const [headerWidth, setHeaderWidth] = useState(0);
+    const [headerHeight, setHeaderHeight] = useState(0);
+    const [contributionData, setContributionData] = useState({});
+
     useEffect(() => {
+        reformatContributionData();
+        console.log(contributionData)
+
         const backAction = () => {
             onBackPressed({ navigation })
             return true;
@@ -66,19 +36,71 @@ const ContributeSecondPage = ({ route, navigation }) => {
             "hardwareBackPress",
             backAction
         );
+        
+        console.log(route.params.paramKey);
 
         return () => backHandler.remove();
     }, []);
 
-    const region = {
-        latitude: route.params.paramKey.en.geometry.location.lat,
-        longitude: route.params.paramKey.en.geometry.location.lng,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005
+    //REFORMAT CONTRIBUTION DATA; PREPARE TO SEND INTO THE SERVER
+    function reformatContributionData() {
+        let tempAfterFree = {};
+        console.log('contribution data');
+        console.log(route.params.paramKey.contributionData);
+
+        /*
+        if (route.params.paramKey.contributionData != {}) {
+            for (let i = 0; i < route.params.paramKey.contributionData.data.length; i++) {
+                tempAfterFree[route.params.paramKey.contributionData.data[i].time] = route.params.paramKey.contributionData.data[i].fee
+            }
+        }
+        */
+
+        setContributionData({
+            'name': {
+                'en': route.params.paramKey.placeDetails.en.name,
+                'th': route.params.paramKey.placeDetails.th.name
+            },
+            'location': {
+                'google_plus_code': route.params.paramKey.placeDetails.en.plus_code,
+                'geo': route.params.paramKey.placeDetails.en.geometry.location,
+                'address': {
+                    'components': {
+                        en: route.params.paramKey.placeDetails.en.address_components,
+                        th: route.params.paramKey.placeDetails.th.address_components
+                    },
+                    'formatted': {
+                        en: route.params.paramKey.placeDetails.en.formatted_address,
+                        th: route.params.paramKey.placeDetails.th.formatted_address
+                    }
+                }
+            },
+            'types': route.params.paramKey.placeDetails.en.types,
+            'place_id': route.params.paramKey.placeDetails.place_id,
+            'price': {
+                'free': route.params.paramKey.contributionData == {} ? true : false,
+                'after_free': {}
+            },
+            'verified': false,
+            'last_updated': (new Date()).toISOString()
+        })
+        console.log(contributionData);
     }
 
-    const [headerWidth, setHeaderWidth] = useState(0);
-    const [headerHeight, setHeaderHeight] = useState(0);
+    //HANDLE BACK BUTTON
+    function onBackPressed() {
+        navigation.goBack()
+    }
+
+    //HANDLE SUBMIT BUTTON
+    function onSubmitPressed() {
+
+    }
+
+    //SUBMIT CONTRIBUTION DATA TO SERVER
+    function submit() {
+
+    }
 
     //Animated Value
     const scrollY = useRef(new Animated.Value(0)).current;
@@ -118,6 +140,7 @@ const ContributeSecondPage = ({ route, navigation }) => {
         return (
             <>
                 <Animated.ScrollView
+                    showsVerticalScrollIndicator={false}
                     style={{ zIndex: -1 }}
                     scrollEventThrottle={16}
                     onScroll={Animated.event(
@@ -167,11 +190,11 @@ const ContributeSecondPage = ({ route, navigation }) => {
                             </MapView>
                         </View>
                         <View style={styles.placeDetailsTextContainer}>
-                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.en.name} title={'Name'} required={'*'} />
-                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.th.name} title={'Thai Name'} />
-                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.en.formatted_address} title={'Address'} required={'*'} />
-                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.en.geometry.location.lat} title={'Latitude'} required={'*'} />
-                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.en.geometry.location.lng} title={'Longitude'} required={'*'} />
+                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.placeDetails.en.name} title={'Name'} required={'*'} />
+                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.placeDetails.th.name} title={'Thai Name'} />
+                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.placeDetails.en.formatted_address} title={'Address'} required={'*'} />
+                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.placeDetails.en.geometry.location.lat} title={'Latitude'} required={'*'} />
+                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.placeDetails.en.geometry.location.lng} title={'Longitude'} required={'*'} />
                         </View>
                     </View>
                 </Animated.ScrollView>
@@ -184,13 +207,17 @@ const ContributeSecondPage = ({ route, navigation }) => {
             <View style={styles.backAndCancelHeaderBackground}>
                 <SafeAreaView forceInset={{ top: 'always' }} />
                 <View style={styles.backAndCancelHeaderView} pointerEvents={'box-none'}>
-                    <TouchableOpacity style={styles.backButtonView} onPress={() => onBackPressed({ navigation })}>
+                    <TouchableOpacity style={styles.backButtonView} onPress={() => onBackPressed()}>
                         <Icon style={styles.backIcon} name='arrow-back' size={24} color='#fff' />
                     </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => onSubmitPressed({ navigation })}>
+                    <TouchableOpacity onPress={() => onSubmitPressed()}>
                         <View style={styles.submitTextView}>
-                            <Text style={styles.submitTextButton}>Next</Text>
+                            <TextWithFont
+                                color={'#fff'}
+                                fontSize={18}
+                                iosFontWeight={'bold'}
+                                androidFontWeight={'bold'}>Submit</TextWithFont>
                         </View>
                     </TouchableOpacity>
                 </View>
@@ -208,9 +235,9 @@ const ContributeSecondPage = ({ route, navigation }) => {
                     })
                 }]
             }]}>
-                <Animated.Text style={[styles.addingAParkingLotToText, { opacity: descriptionOpacity }]}>Adding a parking lot to</Animated.Text>
-                <Animated.Text style={[styles.title, { transform: [{ translateY: titleTextTranslateY }] }]}>{route.params.paramKey.en.name}</Animated.Text>
-                <Animated.Text style={[styles.descriptionText, { opacity: descriptionOpacity }]}>Please provide us more information about pricing and place details.</Animated.Text>
+                <Animated.Text style={[styles.addingAParkingLotToText, { opacity: descriptionOpacity }]}>Review your contribution for</Animated.Text>
+                <Animated.Text style={[styles.title, { transform: [{ translateY: titleTextTranslateY }] }]}>{route.params.paramKey.placeDetails.en.name}</Animated.Text>
+                <Animated.Text style={[styles.descriptionText, { opacity: descriptionOpacity }]}>Please check whether the information you provided is correct. If not, you can go back and change them.</Animated.Text>
             </Animated.View>
             {headerHeight != 0 && renderContent()}
         </>
