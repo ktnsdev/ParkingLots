@@ -90,6 +90,10 @@ const ContributeSecondPage = ({ route, navigation }) => {
 
     function getIsFreeFromYesNoButton(data) {
         setIsFree(!data);
+
+        if (!data) {
+            setContributionData({});
+        }
     }
 
     //HANDLE SUBMIT BUTTON
