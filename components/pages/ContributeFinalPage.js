@@ -124,7 +124,6 @@ const ContributeSecondPage = ({ route, navigation }) => {
 
     //SUBMIT CONTRIBUTION DATA TO SERVER
     function submit() {
-        console.log("starting post")
         fetch(config.contributeParkingLotsURL + config.contributeParkingLotsSecret, {
             method: 'POST',
             headers: {
