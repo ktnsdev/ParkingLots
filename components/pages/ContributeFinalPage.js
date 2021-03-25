@@ -1,10 +1,11 @@
 import React, { Component, useEffect, useRef, useState } from 'react';
-import { SafeAreaView, Text, StyleSheet, View, Platform, TextInput, TouchableOpacity, ScrollView, Alert, BackHandler, Animated, Dimensions } from 'react-native';
+import { Alert, SafeAreaView, Text, StyleSheet, View, Platform, TextInput, TouchableOpacity, ScrollView, BackHandler, Animated, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MapView, { Marker } from 'react-native-maps';
 import GrayTextBoxWithTitle from '../widgets/GrayTextBoxWithTitle';
 import TextWithFont from '../widgets/TextWithFont';
-import ParkingFeeTable from '../widgets/parkingfee/ParkingFeeTable'
+import ParkingFeeTable from '../widgets/parkingfee/ParkingFeeTable';
+import { config } from '../../config';
 
 const screenWidth = Math.round(Dimensions.get('window').width);
 const screenHeight = Math.round(Dimensions.get('window').height);
@@ -86,6 +87,8 @@ const ContributeSecondPage = ({ route, navigation }) => {
                 'after_free': tempAfterFree
             },
             'verified': false,
+            'verification_score': 1,
+            'contributor': 'unknown',
             'last_updated': (new Date()).toISOString()
         })
     }
@@ -97,12 +100,97 @@ const ContributeSecondPage = ({ route, navigation }) => {
 
     //HANDLE SUBMIT BUTTON
     function onSubmitPressed() {
+        submitAlert();
+    }
 
+    function submitAlert() {
+        Alert.alert(
+            'Done checking?',
+            'You won\'t be able to change the details you have submitted your contribution.',
+            [
+                {
+                    text: 'Cancel',
+                    style: 'destructive'
+                },
+                {
+                    text: 'Submit',
+                    onPress: () => submit(),
+                    style: 'default'
+                },
+            ],
+            { cancelable: true }
+        );
     }
 
     //SUBMIT CONTRIBUTION DATA TO SERVER
     function submit() {
+        console.log("starting post")
+        fetch(config.contributeParkingLotsURL + config.contributeParkingLotsSecret, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(contributionData)
+        })
+        .then(response => response.status)
+        .then((data) => {
+            if (data == 401) {
+                dataAlreadyExistsAlert();
+            } else if (data == 400) {
+                errorAlert();
+            } else {
+                onSubmitComplete();
+            }
+        })
+        .catch(() => {
+            errorAlert();
+        })
+    }
 
+    function dataAlreadyExistsAlert() {
+        Alert.alert(
+            'Someone has already contributed a parking lot for ' + contributionData.name.en,
+            'But this doesn\'t mean you can\'t contribute another parking lot! If you are certain that no one has contributed for ' + contributionData.name.en + ', please let us know.',
+            [
+                {
+                    text: 'OK',
+                    onPress: () => navigation.pop(2),
+                    style: 'default'
+                },
+            ],
+            { cancelable: false }
+        );
+    }
+
+    function errorAlert() {
+        Alert.alert(
+            'Something went wrong (400)',
+            'The problem occured while we are trying to connect to the server. Please re-check your internet connection and try again later.',
+            [
+                {
+                    text: 'OK',
+                    style: 'default'
+                },
+            ],
+            { cancelable: false }
+        );
+    }
+
+    //ALERT WHEN THE DATA IS CONTRIBUTED TO THE SERVER
+    function onSubmitComplete() {
+        Alert.alert(
+            'Contribution submitted',
+            'Thank you for helping us build the parking lots catalogue.',
+            [
+                {
+                    text: 'OK!',
+                    onPress: navigation.pop(3),
+                    style: 'default'
+                },
+            ],
+            { cancelable: false }
+        );
     }
 
     //Animated Value
@@ -140,9 +228,22 @@ const ContributeSecondPage = ({ route, navigation }) => {
     function renderParkingFeeTable() {
         return (
             <>
-                <ParkingFeeTable
-                    price={contributionData.price}
-                />
+                <View style={styles.parkingFeeTableView}>
+                    <TextWithFont iosFontWeight='bold' androidFontWeight='bold' fontSize={24} style={styles.contentTitleText}>Parking Fees</TextWithFont>
+                    <View
+                        style={{
+                            ...Platform.select({
+                                'ios': {
+                                    marginTop: '1%'
+                                }
+                            })
+                        }}
+                    >
+                        <ParkingFeeTable
+                            price={contributionData.price}
+                        />
+                    </View>
+                </View>
             </>
         )
     }
@@ -171,7 +272,7 @@ const ContributeSecondPage = ({ route, navigation }) => {
 
                         {!(Object.keys(contributionData).length === 0) && renderParkingFeeTable()}
 
-                        <Text style={styles.contentTitleText}>Parking Lot Details</Text>
+                        <TextWithFont iosFontWeight='bold' androidFontWeight='bold' fontSize={24} style={styles.contentTitleText}>Parking Lot Details</TextWithFont>
                         <View
                             pointerEvents='none'
                             style={{
@@ -349,11 +450,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     contentTitleText: {
-        fontSize: 24,
-        fontWeight: 'bold',
         ...Platform.select({
             'ios': {
-                marginTop: '1%'
+                marginTop: '4%'
             },
             'android': {
                 marginTop: '4%'
@@ -374,6 +473,18 @@ const styles = StyleSheet.create({
                 marginBottom: '1%'
             }
         }),
+    },
+    parkingFeeTableView: {
+        ...Platform.select({
+            'ios': {
+                marginTop: '-3%',
+                marginBottom: '2%'
+            },
+            'android': {
+                marginTop: '-1%',
+                marginBottom: '2%'
+            }
+        })
     }
 })
 
