@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Text, StyleSheet, View, Platform, TextInputComponent, FlatList } from 'react-native';
 import TextWithFont from '../TextWithFont';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const ParkingFeeTable = (props) => {
     const DAY_IN_MINUTE = 1440;
@@ -23,7 +24,6 @@ const ParkingFeeTable = (props) => {
             var h = Math.floor((time - (d * 1440)) / 60);
             var m = Math.round(time % 60);
 
-            console.log(iteration);
             if (tempPriceArray.length != 0) {
                 if (tempPriceArray[tempPriceArray.length - 1].fee == props.price.after_free[time]) {
                     tempPriceArray[tempPriceArray.length - 1] = {
@@ -45,10 +45,8 @@ const ParkingFeeTable = (props) => {
             } else {
                 tempPriceArray.push({ 'time': { 'day': d, 'hour': h, 'minute': m }, 'fee': props.price.after_free[time] });
             }
-            console.log(tempPriceArray);
         })
         setPriceArray(tempPriceArray);
-        console.log(tempPriceArray);
     }
 
     function reformatFirstFreeTime() {
@@ -125,50 +123,52 @@ const ParkingFeeTable = (props) => {
 
     function renderConditions() {
         return (
-            <FlatList
-                style={{ width: '100%' }}
-                scrollEnabled={false}
-                data={priceArray}
-                renderItem={({ item }) => (
-                    <>
-                        {(props.price.first_free != 0) && <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />}
-                        <View style={{
-                            flexDirection: 'row',
-                            marginVertical: 5
-                        }}>
-                            <View style={{ width: '49.9%', alignItems: 'center' }}>
-                                <View style={{ marginVertical: 6, alignItems: 'center' }}>
-                                    {(item.time_end == undefined || item == priceArray[priceArray.length - 1]) &&
-                                        <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>
-                                            {item == priceArray[priceArray.length - 1] ? 'After ' : ''}
-                                            {item.time.day == 0 ? '' : '' + item.time.day + ' day'}{(item.time.day != 0 && item.time.day != 1) ? 's' : '' + (item.time.hour != 0 || item.time.minute != 0) && item.time.day != 0 ? ' ' : ''}
-                                            {item.time.hour == 0 ? '' : '' + item.time.hour + ' hour'}{(item.time.hour != 0 && item.time.hour != 1) ? 's' : '' + (item.time.minute != 0) && item.time.hour != 0 ? ' ' : ''}
-                                            {item.time.minute == 0 ? '' : '' + item.time.minute + ' minute'}{(item.time.minute != 0 && item.time.minute != 1) ? 's' : ''}
-                                        </TextWithFont>
-                                    }
-                                    {(item.time_end != undefined && item != priceArray[priceArray.length - 1]) &&
-                                        <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>
-                                            {item.time.day == 0 ? '' : '' + item.time.day}{(item.time.hour != 0 || item.time.minute != 0) && item.time.day != 0 ? ' ' : ''}
-                                            {item.time.hour == 0 ? '' : '' + item.time.hour}{(item.time.minute != 0) && item.time.hour != 0 ? ' ' : ''}
-                                            {item.time.minute == 0 ? '' : '' + item.time.minute}
-                                              –  
+            <>
+                <FlatList
+                    style={{ width: '100%' }}
+                    scrollEnabled={false}
+                    data={priceArray}
+                    renderItem={({ item }) => (
+                        <>
+                            {(props.price.first_free != 0) && <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />}
+                            <View style={{
+                                flexDirection: 'row',
+                                marginVertical: 5
+                            }}>
+                                <View style={{ width: '49.9%', alignItems: 'center' }}>
+                                    <View style={{ marginVertical: 6, alignItems: 'center' }}>
+                                        {(item.time_end == undefined || item == priceArray[priceArray.length - 1]) &&
+                                            <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>
+                                                {item == priceArray[priceArray.length - 1] ? 'After ' : ''}
+                                                {item.time.day == 0 ? '' : '' + item.time.day + ' day'}{(item.time.day != 0 && item.time.day != 1) ? 's' : '' + (item.time.hour != 0 || item.time.minute != 0) && item.time.day != 0 ? ' ' : ''}
+                                                {item.time.hour == 0 ? '' : '' + item.time.hour + ' hour'}{(item.time.hour != 0 && item.time.hour != 1) ? 's' : '' + (item.time.minute != 0) && item.time.hour != 0 ? ' ' : ''}
+                                                {item.time.minute == 0 ? '' : '' + item.time.minute + ' minute'}{(item.time.minute != 0 && item.time.minute != 1) ? 's' : ''}
+                                            </TextWithFont>
+                                        }
+                                        {(item.time_end != undefined && item != priceArray[priceArray.length - 1]) &&
+                                            <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>
+                                                {item.time.day == 0 ? '' : '' + item.time.day}{(item.time.hour != 0 || item.time.minute != 0) && item.time.day != 0 ? ' ' : ''}
+                                                {item.time.hour == 0 ? '' : '' + item.time.hour}{(item.time.minute != 0) && item.time.hour != 0 ? ' ' : ''}
+                                                {item.time.minute == 0 ? '' : '' + item.time.minute}
+                                              –
                                              {item.time_end.day == 0 ? '' : '' + item.time_end.day + ' day'}{(item.time_end.day != 0 && item.time_end.day != 1) ? 's' : '' + (item.time_end.hour != 0 || item.time_end.minute != 0) && item.time_end.day != 0 ? ' ' : ''}
-                                            {item.time_end.hour == 0 ? '' : '' + item.time_end.hour + ' hour'}{(item.time_end.hour != 0 && item.time_end.hour != 1) ? 's' : '' + (item.time_end.minute != 0) && item.time_end.hour != 0 ? ' ' : ''}
-                                            {item.time_end.minute == 0 ? '' : '' + item.time_end.minute + ' minute'}{(item.time_end.minute != 0 && item.time_end.minute != 1) ? 's' : ''}
-                                        </TextWithFont>
-                                    }
+                                                {item.time_end.hour == 0 ? '' : '' + item.time_end.hour + ' hour'}{(item.time_end.hour != 0 && item.time_end.hour != 1) ? 's' : '' + (item.time_end.minute != 0) && item.time_end.hour != 0 ? ' ' : ''}
+                                                {item.time_end.minute == 0 ? '' : '' + item.time_end.minute + ' minute'}{(item.time_end.minute != 0 && item.time_end.minute != 1) ? 's' : ''}
+                                            </TextWithFont>
+                                        }
+                                    </View>
+                                </View>
+
+                                <View style={{ backgroundColor: '#666', width: '0.2%', marginVertical: -5 }} />
+
+                                <View style={{ width: '49.9%', alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
+                                    <TextWithFont iosFontWeight={'600'} androidFontWeight={'bold'} fontSize={16}>{item.fee} THB</TextWithFont>
                                 </View>
                             </View>
-
-                            <View style={{ backgroundColor: '#666', width: '0.2%', marginVertical: -5 }} />
-
-                            <View style={{ width: '49.9%', alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
-                                <TextWithFont iosFontWeight={'600'} androidFontWeight={'bold'} fontSize={16}>{item.fee} THB</TextWithFont>
-                            </View>
-                        </View>
-                    </>
-                )}
-            />
+                        </>
+                    )}
+                />
+            </>
         )
     }
 
@@ -189,9 +189,24 @@ const ParkingFeeTable = (props) => {
                 shadowRadius: 2,
                 elevation: 7,
             }}>
-                {renderHeader()}
-                {renderFirstFreeTime()}
-                {renderConditions()}
+                {props.price.free == true &&
+                    <>
+                        <View style={{ flexDirection: 'row', justifyContent: 'center', paddingVertical: '2%' }}>
+                            <Icon name={'check-circle-outline'} size={32} color={'#66bb6a'}/>
+                            <View style={{ justifyContent: 'center', marginLeft: '3%' }}>
+                            <TextWithFont fontSize={20} androidFontWeight={'bold'} iosFontWeight={'600'}>Free of charge</TextWithFont>
+
+                            </View>
+                        </View>
+                    </>
+                }
+                {props.price.free == false &&
+                    <>
+                        {renderHeader()}
+                        {renderFirstFreeTime()}
+                        {renderConditions()}
+                    </>
+                }
             </View>
         </>
     )
