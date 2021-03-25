@@ -18,14 +18,37 @@ const ParkingFeeTable = (props) => {
     function reformatPriceArray() {
         let tempPriceArray = [];
 
-        Object.keys(props.price.after_free).map((time, fee) => {
+        Object.keys(props.price.after_free).map((time, iteration) => {
             var d = Math.floor(time / 1440);
             var h = Math.floor((time - (d * 1440)) / 60);
             var m = Math.round(time % 60);
 
-            tempPriceArray.push({ 'time': { 'day': d, 'hour': h, 'minute': m }, 'fee': props.price.after_free[time] });
+            console.log(iteration);
+            if (tempPriceArray.length != 0) {
+                if (tempPriceArray[tempPriceArray.length - 1].fee == props.price.after_free[time]) {
+                    tempPriceArray[tempPriceArray.length - 1] = {
+                        'time': {
+                            'day': tempPriceArray[tempPriceArray.length - 1].time.day,
+                            'hour': tempPriceArray[tempPriceArray.length - 1].time.hour,
+                            'minute': tempPriceArray[tempPriceArray.length - 1].time.minute
+                        },
+                        'fee': props.price.after_free[time],
+                        'time_end': {
+                            'day': d,
+                            'hour': h,
+                            'minute': m
+                        }
+                    }
+                } else {
+                    tempPriceArray.push({ 'time': { 'day': d, 'hour': h, 'minute': m }, 'fee': props.price.after_free[time] });
+                }
+            } else {
+                tempPriceArray.push({ 'time': { 'day': d, 'hour': h, 'minute': m }, 'fee': props.price.after_free[time] });
+            }
+            console.log(tempPriceArray);
         })
         setPriceArray(tempPriceArray);
+        console.log(tempPriceArray);
     }
 
     function reformatFirstFreeTime() {
@@ -115,12 +138,25 @@ const ParkingFeeTable = (props) => {
                         }}>
                             <View style={{ width: '49.9%', alignItems: 'center' }}>
                                 <View style={{ marginVertical: 6, alignItems: 'center' }}>
-                                    <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>
-                                        {item == priceArray[priceArray.length - 1] ? 'After ' : ''}
-                                        {item.time.day == 0 ? '' : '' + item.time.day + ' day'}{(item.time.day != 0 && item.time.day != 1) ? 's' : '' + (item.time.hour != 0 || item.time.minute != 0) && item.time.day != 0 ? ' ' : ''}
-                                        {item.time.hour == 0 ? '' : '' + item.time.hour + ' hour'}{(item.time.hour != 0 && item.time.hour != 1) ? 's' : '' + (item.time.minute != 0) && item.time.hour != 0 ? ' ' : ''}
-                                        {item.time.minute == 0 ? '' : '' + item.time.minute + ' minute'}{(item.time.minute != 0 && item.time.minute != 1) ? 's' : ''}
-                                    </TextWithFont>
+                                    {(item.time_end == undefined || item == priceArray[priceArray.length - 1]) &&
+                                        <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>
+                                            {item == priceArray[priceArray.length - 1] ? 'After ' : ''}
+                                            {item.time.day == 0 ? '' : '' + item.time.day + ' day'}{(item.time.day != 0 && item.time.day != 1) ? 's' : '' + (item.time.hour != 0 || item.time.minute != 0) && item.time.day != 0 ? ' ' : ''}
+                                            {item.time.hour == 0 ? '' : '' + item.time.hour + ' hour'}{(item.time.hour != 0 && item.time.hour != 1) ? 's' : '' + (item.time.minute != 0) && item.time.hour != 0 ? ' ' : ''}
+                                            {item.time.minute == 0 ? '' : '' + item.time.minute + ' minute'}{(item.time.minute != 0 && item.time.minute != 1) ? 's' : ''}
+                                        </TextWithFont>
+                                    }
+                                    {(item.time_end != undefined && item != priceArray[priceArray.length - 1]) &&
+                                        <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>
+                                            {item.time.day == 0 ? '' : '' + item.time.day}{(item.time.hour != 0 || item.time.minute != 0) && item.time.day != 0 ? ' ' : ''}
+                                            {item.time.hour == 0 ? '' : '' + item.time.hour}{(item.time.minute != 0) && item.time.hour != 0 ? ' ' : ''}
+                                            {item.time.minute == 0 ? '' : '' + item.time.minute}
+                                              –  
+                                             {item.time_end.day == 0 ? '' : '' + item.time_end.day + ' day'}{(item.time_end.day != 0 && item.time_end.day != 1) ? 's' : '' + (item.time_end.hour != 0 || item.time_end.minute != 0) && item.time_end.day != 0 ? ' ' : ''}
+                                            {item.time_end.hour == 0 ? '' : '' + item.time_end.hour + ' hour'}{(item.time_end.hour != 0 && item.time_end.hour != 1) ? 's' : '' + (item.time_end.minute != 0) && item.time_end.hour != 0 ? ' ' : ''}
+                                            {item.time_end.minute == 0 ? '' : '' + item.time_end.minute + ' minute'}{(item.time_end.minute != 0 && item.time_end.minute != 1) ? 's' : ''}
+                                        </TextWithFont>
+                                    }
                                 </View>
                             </View>
 
