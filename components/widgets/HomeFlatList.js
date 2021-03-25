@@ -31,9 +31,7 @@ class HomeFlatList extends Component {
                 for (let i = 0; i < Object.keys(jsonData).length; i++) {
                     if (jsonData[i] == undefined) continue;
                     tempParkingLots.push(jsonData[i]);
-                    console.log(jsonData[i])
                 }
-                console.log(tempParkingLots)
                 this.setState({ parkingLots: tempParkingLots });
             })
     }
