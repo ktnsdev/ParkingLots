@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import TextWithFont from './TextWithFont';
 
-const YesNoButton = ({ initial, callbackFunction }) => {
+const YesNoButton = ({ initial, handleSelection }) => {
     const buttonColour = {
         'active': '#ffdeba',
         'inactive': '#e6e6e6'
@@ -33,19 +33,19 @@ const YesNoButton = ({ initial, callbackFunction }) => {
     function onYesPressed() {
         setYesIsActive('active');
         setNoIsActive('inactive');
-        callbackFunction(true);
+        handleSelection(true);
     }
 
     function onNoPressed() {
         setYesIsActive('inactive');
         setNoIsActive('active');
-        callbackFunction(false);
+        handleSelection(false);
     }
 
     function onNonePressed() {
         setYesIsActive('inactive');
         setNoIsActive('inactive');
-        callbackFunction(false);
+        handleSelection(false);
     }
 
     return (

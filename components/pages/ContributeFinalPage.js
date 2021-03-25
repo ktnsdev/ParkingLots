@@ -1,8 +1,11 @@
 import React, { Component, useEffect, useRef, useState } from 'react';
-import { SafeAreaView, Text, StyleSheet, View, Platform, TextInput, TouchableOpacity, ScrollView, Alert, BackHandler, Animated, Dimensions } from 'react-native';
+import { Alert, SafeAreaView, Text, StyleSheet, View, Platform, TextInput, TouchableOpacity, ScrollView, BackHandler, Animated, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MapView, { Marker } from 'react-native-maps';
 import GrayTextBoxWithTitle from '../widgets/GrayTextBoxWithTitle';
+import TextWithFont from '../widgets/TextWithFont';
+import ParkingFeeTable from '../widgets/parkingfee/ParkingFeeTable';
+import { config } from '../../config';
 
 const screenWidth = Math.round(Dimensions.get('window').width);
 const screenHeight = Math.round(Dimensions.get('window').height);
@@ -10,53 +13,21 @@ const HEADER_MAX_HEIGHT = screenHeight * 0.25;
 const HEADER_MIN_HEIGHT = 100;
 const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
-function onSubmitPressed({ navigation }) {
-    Alert.alert(
-        'Submit contribution?',
-        'Please make sure your provided information are as precise as possible.',
-        [
-            {
-                text: 'Back to edit',
-                style: 'cancel'
-            },
-            {
-                text: 'Submit',
-                onPress: () => goHome({ navigation }),
-                style: 'default'
-            },
-        ],
-        { cancelable: true }
-    );
-}
-
-function onBackPressed({ navigation }) {
-    Alert.alert(
-        'Do you want to go back?',
-        'All changes will be lost once you re-select a place.',
-        [
-            {
-                text: 'Back to edit',
-            },
-            {
-                text: 'Go back anyway',
-                onPress: () => goBack({ navigation }),
-                style: 'destructive'
-            },
-        ],
-        { cancelable: true }
-    );
-}
-
-function goBack({ navigation }) {
-    navigation.goBack();
-}
-
-function goHome({ navigation }) {
-    navigation.pop(2)
-}
-
 const ContributeSecondPage = ({ route, navigation }) => {
+    const region = {
+        latitude: route.params.paramKey.placeDetails.en.geometry.location.lat,
+        longitude: route.params.paramKey.placeDetails.en.geometry.location.lng,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005
+    }
+
+    const [headerWidth, setHeaderWidth] = useState(0);
+    const [headerHeight, setHeaderHeight] = useState(0);
+    const [contributionData, setContributionData] = useState({});
+
     useEffect(() => {
+        reformatContributionData();
+
         const backAction = () => {
             onBackPressed({ navigation })
             return true;
@@ -70,15 +41,156 @@ const ContributeSecondPage = ({ route, navigation }) => {
         return () => backHandler.remove();
     }, []);
 
-    const region = {
-        latitude: route.params.paramKey.en.geometry.location.lat,
-        longitude: route.params.paramKey.en.geometry.location.lng,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005
+    //REFORMAT CONTRIBUTION DATA; PREPARE TO SEND INTO THE SERVER
+    function reformatContributionData() {
+        let tempAfterFree = {};
+        let minuteMultiplier = 1;
+
+        if (route.params.paramKey.contributionData.unitTime == 'hour') minuteMultiplier = 60;
+        else if (route.params.paramKey.contributionData.unitTime == 'day') minuteMultiplier = 1440;
+        else if (route.params.paramKey.contributionData.unitTime == 'minute') minuteMultiplier = 60; // Even if the user choose minute, the conditions are always in hour
+
+        if (!(Object.keys(route.params.paramKey.contributionData).length === 0)) {
+            for (let i = 0; i < route.params.paramKey.contributionData.data.length; i++) {
+                tempAfterFree[route.params.paramKey.contributionData.data[i].time * minuteMultiplier] = route.params.paramKey.contributionData.data[i].fee
+            }
+        }
+
+        if (route.params.paramKey.contributionData.unitTime == 'minute') minuteMultiplier = 1; // Now calculating first free time, so minute nultiplier must be 1 if the user selected minute
+
+        let tempFirstFreeTime = Object.keys(route.params.paramKey.contributionData).length === 0 ? 0 : route.params.paramKey.contributionData.firstFreeTime * minuteMultiplier
+
+        setContributionData({
+            'name': {
+                'en': route.params.paramKey.placeDetails.en.name,
+                'th': route.params.paramKey.placeDetails.th.name
+            },
+            'location': {
+                'google_plus_code': route.params.paramKey.placeDetails.en.plus_code,
+                'geo': route.params.paramKey.placeDetails.en.geometry.location,
+                'address': {
+                    'components': {
+                        en: route.params.paramKey.placeDetails.en.address_components,
+                        th: route.params.paramKey.placeDetails.th.address_components
+                    },
+                    'formatted': {
+                        en: route.params.paramKey.placeDetails.en.formatted_address,
+                        th: route.params.paramKey.placeDetails.th.formatted_address
+                    }
+                }
+            },
+            'types': route.params.paramKey.placeDetails.en.types,
+            'place_id': route.params.paramKey.placeDetails.place_id,
+            'price': {
+                'first_free': tempFirstFreeTime,
+                'free': Object.keys(route.params.paramKey.contributionData).length === 0 ? true : false,
+                'after_free': tempAfterFree
+            },
+            'verified': false,
+            'verification_score': 1,
+            'contributor': 'unknown',
+            'last_updated': (new Date()).toISOString()
+        })
     }
 
-    const [headerWidth, setHeaderWidth] = useState(0);
-    const [headerHeight, setHeaderHeight] = useState(0);
+    //HANDLE BACK BUTTON
+    function onBackPressed() {
+        navigation.goBack()
+    }
+
+    //HANDLE SUBMIT BUTTON
+    function onSubmitPressed() {
+        submitAlert();
+    }
+
+    function submitAlert() {
+        Alert.alert(
+            'Done checking?',
+            'You won\'t be able to change the details you have submitted your contribution.',
+            [
+                {
+                    text: 'Cancel',
+                    style: 'destructive'
+                },
+                {
+                    text: 'Submit',
+                    onPress: () => submit(),
+                    style: 'default'
+                },
+            ],
+            { cancelable: true }
+        );
+    }
+
+    //SUBMIT CONTRIBUTION DATA TO SERVER
+    function submit() {
+        fetch(config.contributeParkingLotsURL + config.contributeParkingLotsSecret, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(contributionData)
+        })
+        .then(response => response.status)
+        .then((data) => {
+            if (data == 401) {
+                dataAlreadyExistsAlert();
+            } else if (data == 400) {
+                errorAlert();
+            } else {
+                onSubmitComplete();
+            }
+        })
+        .catch(() => {
+            errorAlert();
+        })
+    }
+
+    function dataAlreadyExistsAlert() {
+        Alert.alert(
+            'Someone has already contributed a parking lot for ' + contributionData.name.en,
+            'But this doesn\'t mean you can\'t contribute another parking lot! If you are certain that no one has contributed for ' + contributionData.name.en + ', please let us know.',
+            [
+                {
+                    text: 'OK',
+                    onPress: () => navigation.pop(2),
+                    style: 'default'
+                },
+            ],
+            { cancelable: false }
+        );
+    }
+
+    function errorAlert() {
+        Alert.alert(
+            'Something went wrong (400)',
+            'The problem occured while we are trying to connect to the server. Please re-check your internet connection and try again later.',
+            [
+                {
+                    text: 'OK',
+                    style: 'default'
+                },
+            ],
+            { cancelable: false }
+        );
+    }
+
+    //ALERT WHEN THE DATA IS CONTRIBUTED TO THE SERVER
+    function onSubmitComplete() {
+        Alert.alert(
+            'Contribution submitted',
+            'Thank you for helping us build the parking lots catalogue.',
+            [
+                {
+                    text: 'OK!',
+                    onPress: navigation.pop(3),
+                    style: 'default'
+                },
+            ],
+            { cancelable: false }
+        );
+    }
 
     //Animated Value
     const scrollY = useRef(new Animated.Value(0)).current;
@@ -110,14 +222,36 @@ const ContributeSecondPage = ({ route, navigation }) => {
         const { x, y, width, height } = layout;
         setHeaderHeight(height);
         setHeaderWidth(width);
+    }
 
-        console.log('setHeight : ' + height)
+    function renderParkingFeeTable() {
+        return (
+            <>
+                <View style={styles.parkingFeeTableView}>
+                    <TextWithFont iosFontWeight='bold' androidFontWeight='bold' fontSize={24} style={styles.contentTitleText}>Parking Fees</TextWithFont>
+                    <View
+                        style={{
+                            ...Platform.select({
+                                'ios': {
+                                    marginTop: '1%'
+                                }
+                            })
+                        }}
+                    >
+                        <ParkingFeeTable
+                            price={contributionData.price}
+                        />
+                    </View>
+                </View>
+            </>
+        )
     }
 
     function renderContent() {
         return (
             <>
                 <Animated.ScrollView
+                    showsVerticalScrollIndicator={false}
                     style={{ zIndex: -1 }}
                     scrollEventThrottle={16}
                     onScroll={Animated.event(
@@ -135,7 +269,9 @@ const ContributeSecondPage = ({ route, navigation }) => {
                         })
                     }]}>
 
-                        <Text style={styles.contentTitleText}>Parking Lot Details</Text>
+                        {!(Object.keys(contributionData).length === 0) && renderParkingFeeTable()}
+
+                        <TextWithFont iosFontWeight='bold' androidFontWeight='bold' fontSize={24} style={styles.contentTitleText}>Parking Lot Details</TextWithFont>
                         <View
                             pointerEvents='none'
                             style={{
@@ -167,11 +303,11 @@ const ContributeSecondPage = ({ route, navigation }) => {
                             </MapView>
                         </View>
                         <View style={styles.placeDetailsTextContainer}>
-                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.en.name} title={'Name'} required={'*'} />
-                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.th.name} title={'Thai Name'} />
-                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.en.formatted_address} title={'Address'} required={'*'} />
-                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.en.geometry.location.lat} title={'Latitude'} required={'*'} />
-                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.en.geometry.location.lng} title={'Longitude'} required={'*'} />
+                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.placeDetails.en.name} title={'Name'} required={'*'} />
+                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.placeDetails.th.name} title={'Thai Name'} />
+                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.placeDetails.en.formatted_address} title={'Address'} required={'*'} />
+                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.placeDetails.en.geometry.location.lat} title={'Latitude'} required={'*'} />
+                            <GrayTextBoxWithTitle placeholder={route.params.paramKey.placeDetails.en.geometry.location.lng} title={'Longitude'} required={'*'} />
                         </View>
                     </View>
                 </Animated.ScrollView>
@@ -184,13 +320,17 @@ const ContributeSecondPage = ({ route, navigation }) => {
             <View style={styles.backAndCancelHeaderBackground}>
                 <SafeAreaView forceInset={{ top: 'always' }} />
                 <View style={styles.backAndCancelHeaderView} pointerEvents={'box-none'}>
-                    <TouchableOpacity style={styles.backButtonView} onPress={() => onBackPressed({ navigation })}>
+                    <TouchableOpacity style={styles.backButtonView} onPress={() => onBackPressed()}>
                         <Icon style={styles.backIcon} name='arrow-back' size={24} color='#fff' />
                     </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => onSubmitPressed({ navigation })}>
+                    <TouchableOpacity onPress={() => onSubmitPressed()}>
                         <View style={styles.submitTextView}>
-                            <Text style={styles.submitTextButton}>Next</Text>
+                            <TextWithFont
+                                color={'#fff'}
+                                fontSize={18}
+                                iosFontWeight={'bold'}
+                                androidFontWeight={'bold'}>Submit</TextWithFont>
                         </View>
                     </TouchableOpacity>
                 </View>
@@ -208,9 +348,9 @@ const ContributeSecondPage = ({ route, navigation }) => {
                     })
                 }]
             }]}>
-                <Animated.Text style={[styles.addingAParkingLotToText, { opacity: descriptionOpacity }]}>Adding a parking lot to</Animated.Text>
-                <Animated.Text style={[styles.title, { transform: [{ translateY: titleTextTranslateY }] }]}>{route.params.paramKey.en.name}</Animated.Text>
-                <Animated.Text style={[styles.descriptionText, { opacity: descriptionOpacity }]}>Please provide us more information about pricing and place details.</Animated.Text>
+                <Animated.Text style={[styles.addingAParkingLotToText, { opacity: descriptionOpacity }]}>Review your contribution for</Animated.Text>
+                <Animated.Text style={[styles.title, { transform: [{ translateY: titleTextTranslateY }] }]}>{route.params.paramKey.placeDetails.en.name}</Animated.Text>
+                <Animated.Text style={[styles.descriptionText, { opacity: descriptionOpacity }]}>Please check whether the information you provided is correct. If not, you can go back and change them.</Animated.Text>
             </Animated.View>
             {headerHeight != 0 && renderContent()}
         </>
@@ -304,16 +444,14 @@ const styles = StyleSheet.create({
     },
     submitTextView: {
         height: 20,
-        width: 60,
+        width: 70,
         alignItems: 'flex-end',
         justifyContent: 'center'
     },
     contentTitleText: {
-        fontSize: 24,
-        fontWeight: 'bold',
         ...Platform.select({
             'ios': {
-                marginTop: '1%'
+                marginTop: '4%'
             },
             'android': {
                 marginTop: '4%'
@@ -334,6 +472,18 @@ const styles = StyleSheet.create({
                 marginBottom: '1%'
             }
         }),
+    },
+    parkingFeeTableView: {
+        ...Platform.select({
+            'ios': {
+                marginTop: '-3%',
+                marginBottom: '2%'
+            },
+            'android': {
+                marginTop: '-1%',
+                marginBottom: '2%'
+            }
+        })
     }
 })
 
