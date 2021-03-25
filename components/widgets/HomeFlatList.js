@@ -17,7 +17,6 @@ class HomeFlatList extends Component {
     componentDidMount() {
         this.fetchParkingLots();
     }
-
     fetchParkingLots() {
         console.log("starting fetch")
         fetch(config.fetchNearbyParkingLotsURL + config.fetchNearbyParkingLotsURLSecret, {
@@ -30,9 +29,11 @@ class HomeFlatList extends Component {
             .then((jsonData) => {
                 let tempParkingLots = [];
                 for (let i = 0; i < Object.keys(jsonData).length; i++) {
+                    if (jsonData[i] == undefined) continue;
                     tempParkingLots.push(jsonData[i]);
                     console.log(jsonData[i])
                 }
+                console.log(tempParkingLots)
                 this.setState({ parkingLots: tempParkingLots });
             })
     }
@@ -44,32 +45,34 @@ class HomeFlatList extends Component {
     render() {
         return (
             <>
-                <FlatList
-                    data={this.state.parkingLots}
-                    keyExtractor={item => item._id}
-                    renderItem={({ item }) => (
-                        <>
-                            <View style={styles.flatListItemView}>
-                                <TouchableOpacity>
-                                    <View>
+                {this.state.parkingLots != undefined &&
+                    <FlatList
+                        data={this.state.parkingLots}
+                        keyExtractor={item => item._id}
+                        renderItem={({ item }) => (
+                            <>
+                                <View style={styles.flatListItemView}>
+                                    <TouchableOpacity>
                                         <View>
-                                            <TextWithFont iosFontWeight={'600'} androidFontWeight={'semibold'} fontSize={28}>{item.name.en}</TextWithFont>
-                                            {item.price.freeHours > 0 &&
-                                                <TextWithFont fontSize={16}>No charge in the first {item.price.freeHours} hours</TextWithFont>
-                                            }
+                                            <View>
+                                                <TextWithFont iosFontWeight={'600'} androidFontWeight={'semibold'} fontSize={28}>{item.name.en}</TextWithFont>
+                                                {item.price.freeHours > 0 &&
+                                                    <TextWithFont fontSize={16}>No charge in the first {item.price.freeHours} hours</TextWithFont>
+                                                }
+                                            </View>
                                         </View>
-                                    </View>
-                                </TouchableOpacity>
-                                <TouchableHighlight style={styles.directionButtonView} onPress={this.recentre} underlayColor='#ddd' onPress={this.onDirectionPressed}>
-                                    <View>
-                                        <Icon name='directions' size={28} />
-                                    </View>
-                                </TouchableHighlight>
-                            </View>
-                            <View style={styles.lineBreak} />
-                        </>
-                    )}
-                />
+                                    </TouchableOpacity>
+                                    <TouchableHighlight style={styles.directionButtonView} onPress={this.recentre} underlayColor='#ddd' onPress={this.onDirectionPressed}>
+                                        <View>
+                                            <Icon name='directions' size={28} />
+                                        </View>
+                                    </TouchableHighlight>
+                                </View>
+                                <View style={styles.lineBreak} />
+                            </>
+                        )}
+                    />
+                }
             </>
         )
     }
