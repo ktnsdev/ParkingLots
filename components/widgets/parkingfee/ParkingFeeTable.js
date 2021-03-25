@@ -8,7 +8,7 @@ const ParkingFeeTable = (props) => {
 
     const [priceArray, setPriceArray] = useState([]);
     const [unitTime, setUnitTime] = useState('default');
-    const [firstFreeTime, setFirstFreeTime] = useState({'day': 0, 'hour': 0, 'minute': 0});
+    const [firstFreeTime, setFirstFreeTime] = useState({ 'day': 0, 'hour': 0, 'minute': 0 });
 
     useEffect(() => {
         reformatPriceArray();
@@ -23,7 +23,7 @@ const ParkingFeeTable = (props) => {
             var h = Math.floor((time - (d * 1440)) / 60);
             var m = Math.round(time % 60);
 
-            tempPriceArray.push({ 'time': {'day': d, 'hour': h, 'minute': m}, 'fee': fee });
+            tempPriceArray.push({ 'time': { 'day': d, 'hour': h, 'minute': m }, 'fee': props.price.after_free[time] });
         })
         setPriceArray(tempPriceArray);
     }
@@ -33,8 +33,8 @@ const ParkingFeeTable = (props) => {
             var d = Math.floor(props.price.first_free / 1440);
             var h = Math.floor((props.price.first_free - (d * 1440)) / 60);
             var m = Math.round(props.price.first_free % 60);
-    
-            setFirstFreeTime({'day': d, 'hour': h, 'minute': m});
+
+            setFirstFreeTime({ 'day': d, 'hour': h, 'minute': m });
         }
     }
 
@@ -53,7 +53,7 @@ const ParkingFeeTable = (props) => {
                     <View style={{ backgroundColor: '#666', width: '0.2%', marginTop: '-1%', marginBottom: '-3%' }} />
 
                     <View style={{ width: '49.9%', alignItems: 'center' }}>
-                        <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Fee</TextWithFont>
+                        <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Fee (Per unit time)</TextWithFont>
                     </View>
                 </View>
                 <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />
@@ -86,10 +86,10 @@ const ParkingFeeTable = (props) => {
                         <View style={{ backgroundColor: '#666', width: '0.2%', marginVertical: -5 }} />
 
                         <View style={{ width: '49.9%', alignItems: 'center' }}>
-                            {props.firstFreeTime != 0 &&
+                            {props.first_free != 0 &&
                                 <>
                                     <View style={{ marginVertical: 6 }}>
-                                        <TextWithFont {...props} fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Free</TextWithFont>
+                                        <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Free</TextWithFont>
                                     </View>
                                 </>
                             }
@@ -108,22 +108,26 @@ const ParkingFeeTable = (props) => {
                 data={priceArray}
                 renderItem={({ item }) => (
                     <>
-                        {(!props.price.firstFreeTime != 0) && <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />}
+                        {(props.price.first_free != 0) && <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />}
                         <View style={{
                             flexDirection: 'row',
                             marginVertical: 5
                         }}>
                             <View style={{ width: '49.9%', alignItems: 'center' }}>
                                 <View style={{ marginVertical: 6, alignItems: 'center' }}>
-                                    {item == priceArray[priceArray.length - 1] && <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>After {props.firstUnitTime == 'day' ? 'day' : 'hour'} {item.time}</TextWithFont>}
-                                    {item != priceArray[priceArray.length - 1] && <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>{props.firstUnitTime == 'day' ? 'Day' : 'Hour'} {item.time}</TextWithFont>}
+                                    <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>
+                                        {item == priceArray[priceArray.length - 1] ? 'After ' : ''}
+                                        {item.time.day == 0 ? '' : '' + item.time.day + ' day'}{(item.time.day != 0 && item.time.day != 1) ? 's' : '' + (item.time.hour != 0 || item.time.minute != 0) && item.time.day != 0 ? ' ' : ''}
+                                        {item.time.hour == 0 ? '' : '' + item.time.hour + ' hour'}{(item.time.hour != 0 && item.time.hour != 1) ? 's' : '' + (item.time.minute != 0) && item.time.hour != 0 ? ' ' : ''}
+                                        {item.time.minute == 0 ? '' : '' + item.time.minute + ' minute'}{(item.time.minute != 0 && item.time.minute != 1) ? 's' : ''}
+                                    </TextWithFont>
                                 </View>
                             </View>
 
                             <View style={{ backgroundColor: '#666', width: '0.2%', marginVertical: -5 }} />
 
                             <View style={{ width: '49.9%', alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
-                                <TextWithFont iosFontWeight={'600'} androidFontWeight={'bold'}>{item.fee} THB</TextWithFont>
+                                <TextWithFont iosFontWeight={'600'} androidFontWeight={'bold'} fontSize={16}>{item.fee} THB</TextWithFont>
                             </View>
                         </View>
                     </>
