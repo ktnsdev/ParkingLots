@@ -17,6 +17,7 @@ class HomeFlatList extends Component {
     componentDidMount() {
         this.fetchParkingLots();
     }
+    
     fetchParkingLots() {
         console.log("starting fetch")
         fetch(config.fetchNearbyParkingLotsURL + config.fetchNearbyParkingLotsURLSecret, {
