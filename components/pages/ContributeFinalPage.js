@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     },
     submitTextView: {
         height: 20,
-        width: 60,
+        width: 70,
         alignItems: 'flex-end',
         justifyContent: 'center'
     },
