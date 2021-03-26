@@ -183,8 +183,10 @@ const ParkingFeeConditionAdder = (props) => {
                         }}>
                             <View style={{ width: '49.9%', alignItems: 'center' }}>
                                 <View style={{ marginVertical: 6, alignItems: 'center' }}>
-                                    {item == afterFree[afterFree.length - 1] && <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>After {props.firstUnitTime == 'day' ? 'day' : 'hour'} {item.time}</TextWithFont>}
-                                    {item != afterFree[afterFree.length - 1] && <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>{props.firstUnitTime == 'day' ? 'Day' : 'Hour'} {item.time}</TextWithFont>}
+                                    {item == afterFree[afterFree.length - 1] && item.time != 0 && item.time != 1 && <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>After {props.firstUnitTime == 'day' ? 'day' : 'hour'} {item.time - 1}</TextWithFont>}
+                                    {item != afterFree[afterFree.length - 1] && item.time != 0 && item.time != 1 && <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>{props.firstUnitTime == 'day' ? 'Day' : 'Hour'} {item.time}</TextWithFont>}
+                                    {item == afterFree[afterFree.length - 1] && item.time == 1 && <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Flat rate</TextWithFont>}
+                                    {item != afterFree[afterFree.length - 1] && item.time == 1 && <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>First hour</TextWithFont>}
                                 </View>
                             </View>
 
