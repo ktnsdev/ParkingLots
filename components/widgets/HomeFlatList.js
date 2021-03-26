@@ -8,7 +8,8 @@ class HomeFlatList extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            parkingLots: []
+            verifiedParkingLots: [],
+            notVerifiedParkingLots: []
         };
         this.fetchParkingLots = this.fetchParkingLots.bind(this);
         this.onDirectionPressed = this.onDirectionPressed.bind(this);
@@ -17,23 +18,33 @@ class HomeFlatList extends Component {
     componentDidMount() {
         this.fetchParkingLots();
     }
-    
+
     fetchParkingLots() {
         console.log("starting fetch")
         fetch(config.fetchNearbyParkingLotsURL + config.fetchNearbyParkingLotsURLSecret, {
             method: 'POST',
-            header: {
-                'Content-Type': 'application/json'
-            }
         })
             .then(response => response.json())
             .then((jsonData) => {
+                let responseJson = JSON.parse(jsonData);
+
                 let tempParkingLots = [];
-                for (let i = 0; i < Object.keys(jsonData).length; i++) {
-                    if (jsonData[i] == undefined) continue;
-                    tempParkingLots.push(jsonData[i]);
+                for (let i = 0; i < responseJson.verified.length; i++) {
+                    if (responseJson.verfied[i] == undefined) continue;
+                    tempParkingLots.push(responseJson.verified[i]);
                 }
-                this.setState({ parkingLots: tempParkingLots });
+
+                console.log(tempParkingLots);
+                this.setState({ verifiedParkingLots: tempParkingLots });
+
+                tempParkingLots = [];
+                for (let i = 0; i < responseJson.not_verified.length; i++) {
+                    if (responseJson.not_verified[i] == undefined) continue;
+                    tempParkingLots.push(responseJson.not_verified[i]);
+                }
+
+                console.log(tempParkingLots);
+                this.setState({ notVerifiedParkingLots: tempParkingLots });
             })
     }
 
@@ -44,9 +55,9 @@ class HomeFlatList extends Component {
     render() {
         return (
             <>
-                {this.state.parkingLots != undefined &&
+                {this.state.verifiedParkingLots[0] != undefined &&
                     <FlatList
-                        data={this.state.parkingLots}
+                        data={this.state.verifiedParkingLots}
                         keyExtractor={item => item._id}
                         renderItem={({ item }) => (
                             <>
@@ -55,8 +66,43 @@ class HomeFlatList extends Component {
                                         <View>
                                             <View>
                                                 <TextWithFont iosFontWeight={'600'} androidFontWeight={'semibold'} fontSize={28}>{item.name.en}</TextWithFont>
-                                                {item.price.freeHours > 0 &&
-                                                    <TextWithFont fontSize={16}>No charge in the first {item.price.freeHours} hours</TextWithFont>
+                                                {item.price.first_free > 0 &&
+                                                    <TextWithFont fontSize={16}>First {item.price.first_free} minutes are free</TextWithFont>
+                                                }
+                                                {item.price.first_free == 0 && item.price.free == true &&
+                                                    <TextWithFont fontSize={16}>No charge</TextWithFont>
+                                                }
+                                            </View>
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableHighlight style={styles.directionButtonView} onPress={this.recentre} underlayColor='#ddd' onPress={this.onDirectionPressed}>
+                                        <View>
+                                            <Icon name='directions' size={28} />
+                                        </View>
+                                    </TouchableHighlight>
+                                </View>
+                                <View style={styles.lineBreak} />
+                            </>
+                        )}
+                    />
+                }
+
+                {this.state.notVerifiedParkingLots[0] != undefined &&
+                    <FlatList
+                        data={this.state.notVerifiedParkingLots}
+                        keyExtractor={item => item._id}
+                        renderItem={({ item }) => (
+                            <>
+                                <View style={styles.flatListItemView}>
+                                    <TouchableOpacity>
+                                        <View>
+                                            <View>
+                                                <TextWithFont iosFontWeight={'600'} androidFontWeight={'semibold'} fontSize={28}>{item.name.en}</TextWithFont>
+                                                {item.price.first_free > 0 &&
+                                                    <TextWithFont fontSize={16}>First {item.price.first_free} minutes are free</TextWithFont>
+                                                }
+                                                {item.price.first_free == 0 && item.price.free == true &&
+                                                    <TextWithFont fontSize={16}>No charge</TextWithFont>
                                                 }
                                             </View>
                                         </View>
