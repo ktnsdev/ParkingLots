@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import HomeFlatList from './HomeFlatList'
 import TextWithFont from './TextWithFont';
 
-export default function HomeBottomSheetComponents() {
+export default function HomeBottomSheetComponents(props) {
     return (
         <>
             <View style={styles.handleViewContainer}>
@@ -11,13 +11,15 @@ export default function HomeBottomSheetComponents() {
             </View>
             <View>
                 <View style={styles.titleView}>
-                    <TextWithFont fontSize={36} iosFontWeight={'bold'} androidFontWeight={'bold'}>🅿️ Nearby</TextWithFont>
-                    <View style={styles.lineBreak} />
+                    <TextWithFont fontSize={28} iosFontWeight={'bold'} androidFontWeight={'bold'}>🅿️ Nearby</TextWithFont>
                 </View>
+
+                <View style={styles.lineBreak} />
             </View>
-            <View>
-                <HomeFlatList />
+            <View style={styles.homeFlatListContainer}>
+                <HomeFlatList navigation={props.navigation} />
             </View>
+            <SafeAreaView/>
         </>
     );
 }
@@ -37,19 +39,18 @@ const styles = StyleSheet.create({
         backgroundColor: '#ddd',
         borderRadius: 10
     },
-    backgroundTitleView: {
-    },
     titleView: {
-        marginTop: '-2%'
+        marginTop: '-2%',
+        alignItems: 'center'
     },
-    title: {
-        fontSize: 36,
-        fontWeight: 'bold'
+    homeFlatListContainer: {
+        marginBottom: '2%'
     },
     lineBreak: {
         borderBottomColor: '#404040',
         borderBottomWidth: 0.5,
         marginTop: "3%",
         marginBottom: "3%"
-    }
+    },
+
 });

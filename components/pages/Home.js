@@ -89,7 +89,7 @@ class Home extends Component {
                             />
                         </View>
                         <View>
-                            <HomeBottomSheet style={{ marginTop: '-2%' }} />
+                            <HomeBottomSheet navigation={this.props.navigation} style={{ marginTop: '-2%' }} />
                         </View>
                     </View>
                 </ScrollView>

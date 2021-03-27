@@ -4,7 +4,7 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import HomeBottomSheetComponents from './HomeBottomSheetComponents';
 import HandleProps from './HomeBottomSheetHandleProps';
 
-const HomeBottomSheet = () => {
+const HomeBottomSheet = (props) => {
     // variables
     const snapPoints = useMemo(() => ['20%', '60%'], []);
 
@@ -16,7 +16,7 @@ const HomeBottomSheet = () => {
     // renders
     return (
         <View style={styles.bottomSheet}>
-            <HomeBottomSheetComponents/>
+            <HomeBottomSheetComponents navigation={props.navigation}/>
         </View>
     );
 };

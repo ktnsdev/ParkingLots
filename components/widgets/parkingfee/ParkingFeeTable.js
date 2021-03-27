@@ -137,12 +137,14 @@ const ParkingFeeTable = (props) => {
                             }}>
                                 <View style={{ width: '49.9%', alignItems: 'center' }}>
                                     <View style={{ marginVertical: 6, alignItems: 'center' }}>
-                                        {(item.time_end == undefined || item == priceArray[priceArray.length - 1]) &&
+                                        {(item.time_end == undefined || item == priceArray[priceArray.length - 1]) && props.price.first_free != 0 &&
                                             <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>
-                                                {item == priceArray[priceArray.length - 1] ? 'After ' : ''}
-                                                {item.time.day == 0 ? '' : '' + item.time.day + ' day'}{(item.time.day != 0 && item.time.day != 1) ? 's' : '' + (item.time.hour != 0 || item.time.minute != 0) && item.time.day != 0 ? ' ' : ''}
-                                                {item.time.hour == 0 ? '' : '' + item.time.hour + ' hour'}{(item.time.hour != 0 && item.time.hour != 1) ? 's' : '' + (item.time.minute != 0) && item.time.hour != 0 ? ' ' : ''}
-                                                {item.time.minute == 0 ? '' : '' + item.time.minute + ' minute'}{(item.time.minute != 0 && item.time.minute != 1) ? 's' : ''}
+                                                {item == priceArray[priceArray.length - 1] ? 'After that' : ''}
+                                            </TextWithFont>
+                                        }
+                                        {(item.time_end == undefined || item == priceArray[priceArray.length - 1]) && props.price.first_free == 0 &&
+                                            <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>
+                                                {item == priceArray[priceArray.length - 1] ? 'Flat rate' : ''}
                                             </TextWithFont>
                                         }
                                         {(item.time_end != undefined && item != priceArray[priceArray.length - 1]) &&

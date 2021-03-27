@@ -9,14 +9,26 @@ class HomeFlatList extends Component {
         super(props);
         this.state = {
             verifiedParkingLots: [],
-            notVerifiedParkingLots: []
+            notVerifiedParkingLots: [],
+            verifiedParkingLotsFreeTime: {},
+            notVerifiedParkingLotsFreeTime: {}
         };
         this.fetchParkingLots = this.fetchParkingLots.bind(this);
         this.onDirectionPressed = this.onDirectionPressed.bind(this);
+        this.onParkingLotNamePressed = this.onParkingLotNamePressed.bind(this);
+        this.reformatFreeTime = this.reformatFreeTime.bind(this);
     }
 
     componentDidMount() {
         this.fetchParkingLots();
+    }
+
+    reformatFreeTime(first_free) {
+        var d = Math.floor(first_free / 1440);
+        var h = Math.floor((first_free - (d * 1440)) / 60);
+        var m = Math.round(first_free % 60);
+
+        return { 'day': d, 'hour': h, 'minute': m }
     }
 
     fetchParkingLots() {
@@ -29,23 +41,34 @@ class HomeFlatList extends Component {
                 let responseJson = JSON.parse(jsonData);
 
                 let tempParkingLots = [];
+                let tempFreeTime = {}
+
                 for (let i = 0; i < responseJson.verified.length; i++) {
                     if (responseJson.verfied[i] == undefined) continue;
+                    tempFreeTime[responseJson.verfied[i]._id] = this.reformatFreeTime(responseJson.verfied[i].price.first_free);
                     tempParkingLots.push(responseJson.verified[i]);
                 }
 
-                console.log(tempParkingLots);
+                console.log(tempFreeTime)
+                this.setState({ verifiedParkingLotsFreeTime: tempFreeTime })
                 this.setState({ verifiedParkingLots: tempParkingLots });
 
                 tempParkingLots = [];
+                tempFreeTime = {};
                 for (let i = 0; i < responseJson.not_verified.length; i++) {
                     if (responseJson.not_verified[i] == undefined) continue;
+                    tempFreeTime[responseJson.not_verified[i]._id] = this.reformatFreeTime(responseJson.not_verified[i].price.first_free);
                     tempParkingLots.push(responseJson.not_verified[i]);
                 }
 
-                console.log(tempParkingLots);
+                console.log(tempFreeTime);
+                this.setState({ notVerifiedParkingLotsFreeTime: tempFreeTime })
                 this.setState({ notVerifiedParkingLots: tempParkingLots });
             })
+    }
+
+    onParkingLotNamePressed(data) {
+        this.props.navigation.navigate('ParkingLotDetailsPage', data);
     }
 
     onDirectionPressed() {
@@ -62,15 +85,20 @@ class HomeFlatList extends Component {
                         renderItem={({ item }) => (
                             <>
                                 <View style={styles.flatListItemView}>
-                                    <TouchableOpacity>
+                                    <TouchableOpacity onPress={items => this.onParkingLotNamePressed(item)}>
                                         <View>
                                             <View>
-                                                <TextWithFont iosFontWeight={'600'} androidFontWeight={'semibold'} fontSize={28}>{item.name.en}</TextWithFont>
+                                                <TextWithFont iosFontWeight={'600'} androidFontWeight={'semibold'} fontSize={24}>{item.name.en}</TextWithFont>
                                                 {item.price.first_free > 0 &&
-                                                    <TextWithFont fontSize={16}>First {item.price.first_free} minutes are free</TextWithFont>
+                                                    <TextWithFont fontSize={16}>First {this.state.verifiedParkingLotsFreeTime[item._id].day == 0 ? '' : '' + this.state.verifiedParkingLotsFreeTime[item._id].day + ' day'}{(this.state.verifiedParkingLotsFreeTime[item._id].day != 0 && this.state.verifiedParkingLotsFreeTime[item._id].day != 1) ? 's' : '' + (this.state.verifiedParkingLotsFreeTime[item._id].hour != 0 || this.state.verifiedParkingLotsFreeTime[item._id].minute != 0) && this.state.verifiedParkingLotsFreeTime[item._id].day != 0 ? ' ' : ''}
+                                                        {this.state.verifiedParkingLotsFreeTime[item._id].hour == 0 ? '' : '' + this.state.verifiedParkingLotsFreeTime[item._id].hour + ' hour'}{(this.state.verifiedParkingLotsFreeTime[item._id].hour != 0 && this.state.verifiedParkingLotsFreeTime[item._id].hour != 1) ? 's' : '' + (this.state.verifiedParkingLotsFreeTime[item._id].minute != 0) && this.state.verifiedParkingLotsFreeTime[item._id].hour != 0 ? ' ' : ''}
+                                                        {this.state.verifiedParkingLotsFreeTime[item._id].minute == 0 ? '' : '' + this.state.verifiedParkingLotsFreeTime[item._id].minute + ' minute'}{(this.state.verifiedParkingLotsFreeTime[item._id].minute != 0 && this.state.verifiedParkingLotsFreeTime[item._id].minute != 1) ? 's' : ''} {this.state.verifiedParkingLotsFreeTime[item._id].hour + this.state.verifiedParkingLotsFreeTime[item._id].minute + this.state.verifiedParkingLotsFreeTime[item._id].day == 1 ? 'is' : 'are'} free</TextWithFont>
                                                 }
                                                 {item.price.first_free == 0 && item.price.free == true &&
                                                     <TextWithFont fontSize={16}>No charge</TextWithFont>
+                                                }
+                                                {item.price.first_free == 0 && item.price.free == false && Object.keys(item.price.after_free).length != 0 &&
+                                                    <TextWithFont fontSize={16}>Flat rate</TextWithFont>
                                                 }
                                             </View>
                                         </View>
@@ -81,7 +109,6 @@ class HomeFlatList extends Component {
                                         </View>
                                     </TouchableHighlight>
                                 </View>
-                                <View style={styles.lineBreak} />
                             </>
                         )}
                     />
@@ -94,15 +121,20 @@ class HomeFlatList extends Component {
                         renderItem={({ item }) => (
                             <>
                                 <View style={styles.flatListItemView}>
-                                    <TouchableOpacity>
+                                    <TouchableOpacity onPress={items => this.onParkingLotNamePressed(item)}>
                                         <View>
                                             <View>
-                                                <TextWithFont iosFontWeight={'600'} androidFontWeight={'semibold'} fontSize={28}>{item.name.en}</TextWithFont>
+                                                <TextWithFont iosFontWeight={'600'} androidFontWeight={'semibold'} fontSize={24}>{item.name.en}</TextWithFont>
                                                 {item.price.first_free > 0 &&
-                                                    <TextWithFont fontSize={16}>First {item.price.first_free} minutes are free</TextWithFont>
+                                                    <TextWithFont fontSize={16}>First {this.state.notVerifiedParkingLotsFreeTime[item._id].day == 0 ? '' : '' + this.state.notVerifiedParkingLotsFreeTime[item._id].day + ' day'}{(this.state.notVerifiedParkingLotsFreeTime[item._id].day != 0 && this.state.notVerifiedParkingLotsFreeTime[item._id].day != 1) ? 's' : '' + (this.state.notVerifiedParkingLotsFreeTime[item._id].hour != 0 || this.state.notVerifiedParkingLotsFreeTime[item._id].minute != 0) && this.state.notVerifiedParkingLotsFreeTime[item._id].day != 0 ? ' ' : ''}
+                                                        {this.state.notVerifiedParkingLotsFreeTime[item._id].hour == 0 ? '' : '' + this.state.notVerifiedParkingLotsFreeTime[item._id].hour + ' hour'}{(this.state.notVerifiedParkingLotsFreeTime[item._id].hour != 0 && this.state.notVerifiedParkingLotsFreeTime[item._id].hour != 1) ? 's' : '' + (this.state.notVerifiedParkingLotsFreeTime[item._id].minute != 0) && this.state.notVerifiedParkingLotsFreeTime[item._id].hour != 0 ? ' ' : ''}
+                                                        {this.state.notVerifiedParkingLotsFreeTime[item._id].minute == 0 ? '' : '' + this.state.notVerifiedParkingLotsFreeTime[item._id].minute + ' minute'}{(this.state.notVerifiedParkingLotsFreeTime[item._id].minute != 0 && this.state.notVerifiedParkingLotsFreeTime[item._id].minute != 1) ? 's' : ''} {this.state.notVerifiedParkingLotsFreeTime[item._id].hour + this.state.notVerifiedParkingLotsFreeTime[item._id].minute + this.state.notVerifiedParkingLotsFreeTime[item._id].day == 1 ? 'is' : 'are'} free</TextWithFont>
                                                 }
                                                 {item.price.first_free == 0 && item.price.free == true &&
                                                     <TextWithFont fontSize={16}>No charge</TextWithFont>
+                                                }
+                                                {item.price.first_free == 0 && item.price.free == false && Object.keys(item.price.after_free).length != 0 &&
+                                                    <TextWithFont fontSize={16}>Flat rate</TextWithFont>
                                                 }
                                             </View>
                                         </View>
@@ -113,7 +145,6 @@ class HomeFlatList extends Component {
                                         </View>
                                     </TouchableHighlight>
                                 </View>
-                                <View style={styles.lineBreak} />
                             </>
                         )}
                     />
@@ -130,7 +161,8 @@ const styles = StyleSheet.create({
     flatListItemView: {
         justifyContent: 'space-between',
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginVertical: 10
     },
     lineBreak: {
         borderBottomColor: '#404040',

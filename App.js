@@ -7,6 +7,7 @@ import Contribute from './components/pages/Contribute'
 import ContributeSecondPage from './components/pages/ContributeSecondPage';
 import ContributeMapAndAutocomplete from './components/widgets/contribution/ContributeMapAndAutocomplete';
 import ContributeFinalPage from './components/pages/ContributeFinalPage';
+import ParkingLotDetailsPage from './components/pages/ParkingLotDetailsPage';
 
 const Stack = createStackNavigator();
 
@@ -20,6 +21,7 @@ export default function App() {
           <Stack.Screen name="ContributeSecondPage" component={ContributeSecondPage} options={{gestureEnabled: false}}/>
           <Stack.Screen name="ContributeMapAndAutocomplete" component={ContributeMapAndAutocomplete}/>
           <Stack.Screen name="ContributeFinalPage" component={ContributeFinalPage} options={{gestureEnabled: false}}/>
+          <Stack.Screen name="ParkingLotDetailsPage" component={ParkingLotDetailsPage} options={{gestureEnabled: true}}/>
         </Stack.Navigator>
       </NavigationContainer>
     </>
