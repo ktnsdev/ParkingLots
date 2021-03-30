@@ -12,7 +12,7 @@ export default function HomeBottomSheetComponents(props) {
             </View>
             <View>
                 <View style={styles.titleView}>
-                    <TextWithFont fontSize={28} iosFontWeight={'bold'} androidFontWeight={'bold'}>🅿️ Nearby</TextWithFont>
+                    <TextWithFont fontSize={28} iosFontWeight={'bold'} androidFontWeight={'bold'}>Parking lots nearby</TextWithFont>
                 </View>
 
                 <Divider style={styles.lineBreak} />
