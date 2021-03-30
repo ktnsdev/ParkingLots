@@ -84,7 +84,8 @@ const ContributeSecondPage = ({ route, navigation }) => {
             'price': {
                 'first_free': tempFirstFreeTime,
                 'free': Object.keys(route.params.paramKey.contributionData).length === 0 ? true : false,
-                'after_free': tempAfterFree
+                'after_free': tempAfterFree,
+                'unit_time': route.params.paramKey.contributionData.unitTime
             },
             'verified': false,
             'verification_score': 1,

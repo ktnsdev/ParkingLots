@@ -75,7 +75,7 @@ const ParkingFeeTable = (props) => {
                     <View style={{ backgroundColor: '#666', width: '0.2%', marginTop: '-1%', marginBottom: '-3%' }} />
 
                     <View style={{ width: '49.9%', alignItems: 'center' }}>
-                        <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Fee (Per unit time)</TextWithFont>
+                        <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Fee {props.price.unit_time == undefined ? '(Per unit time)' : props.price.unit_time == 'minute' ? '(Per hour)' : '(Per ' + props.price.unit_time + ')'}</TextWithFont>
                     </View>
                 </View>
                 <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />
