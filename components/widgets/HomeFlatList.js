@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, FlatList, Text, View, TouchableHighlight, Platform, TouchableOpacity } from 'react-native';
+import { Divider } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import TextWithFont from './TextWithFont';
 import { config } from '../../config';
@@ -108,6 +109,9 @@ class HomeFlatList extends Component {
                                     </View>
                                 </TouchableHighlight>
                             </View>
+                            {item != this.state.verifiedParkingLots[this.state.verifiedParkingLots.length - 1] && this.state.notVerifiedParkingLots.length == 0 &&
+                                        <Divider style={styles.lineBreak} />
+                                    }
                         </>
                     )}
                     ListFooterComponent={
@@ -141,6 +145,9 @@ class HomeFlatList extends Component {
                                             </View>
                                         </TouchableHighlight>
                                     </View>
+                                    {item != this.state.notVerifiedParkingLots[this.state.notVerifiedParkingLots.length - 1] &&
+                                        <Divider style={styles.lineBreak} />
+                                    }
                                 </>
                             )}
                         />
@@ -162,10 +169,8 @@ const styles = StyleSheet.create({
         marginVertical: 10
     },
     lineBreak: {
-        borderBottomColor: '#404040',
-        borderBottomWidth: 0.5,
-        marginTop: "3%",
-        marginBottom: "3%"
+        backgroundColor: '#404040',
+        marginVertical: '1%'
     },
     directionButtonView: {
         ...Platform.select({

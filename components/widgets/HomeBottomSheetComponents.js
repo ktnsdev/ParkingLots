@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { Divider } from 'react-native-elements'
 import HomeFlatList from './HomeFlatList'
 import TextWithFont from './TextWithFont';
 
@@ -14,7 +15,7 @@ export default function HomeBottomSheetComponents(props) {
                     <TextWithFont fontSize={28} iosFontWeight={'bold'} androidFontWeight={'bold'}>🅿️ Nearby</TextWithFont>
                 </View>
 
-                <View style={styles.lineBreak} />
+                <Divider style={styles.lineBreak} />
             </View>
             <HomeFlatList navigation={props.navigation} />
             <SafeAreaView />
@@ -45,10 +46,9 @@ const styles = StyleSheet.create({
         marginBottom: '2%'
     },
     lineBreak: {
-        borderBottomColor: '#404040',
-        borderBottomWidth: 0.5,
+        backgroundColor: '#404040',
         marginTop: "3%",
-        marginBottom: "3%"
+        marginBottom: "1%"
     },
 
 });
