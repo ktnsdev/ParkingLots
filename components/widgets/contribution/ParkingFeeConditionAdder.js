@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Text, FlatList, View, TouchableOpacity, Platform } from 'react-native'
+import { Divider } from 'react-native-elements'
 import GrayDropdownBox from '../GrayDropdownBox';
 import TextWithFont from '../TextWithFont';
 import TitleWithSubtitle from '../TitleWithSubtitle';
@@ -128,7 +129,7 @@ const ParkingFeeConditionAdder = (props) => {
                         <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>Fee (Per {props.firstUnitTime == 'day' ? 'day' : 'hour'})</TextWithFont>
                     </View>
                 </View>
-                <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />
+                <Divider style={{ backgroundColor: '#666', height: 0.5, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />
             </>
         )
     }
@@ -176,7 +177,7 @@ const ParkingFeeConditionAdder = (props) => {
                 data={afterFree}
                 renderItem={({ item }) => (
                     <>
-                        {(!freeTimeIsZero || item != afterFree[0]) && <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />}
+                        {(!freeTimeIsZero || item != afterFree[0]) && <Divider style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />}
                         <View style={{
                             flexDirection: 'row',
                             marginVertical: 5
@@ -219,7 +220,7 @@ const ParkingFeeConditionAdder = (props) => {
                 marginTop: '2%',
                 paddingVertical: '3%',
                 paddingHorizontal: '4%',
-                backgroundColor: '#f5f5f5',
+                backgroundColor: '#fff',
                 borderRadius: 12,
                 shadowColor: "#333",
                 shadowOffset: {

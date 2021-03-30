@@ -55,7 +55,7 @@ const GrayTextInputWithTitle = (props) => {
                 />
                 {props.timeIsValid == false && invalidTimeRender()}
                 {props.charIsValid == false && invalidInputRender()}
-                <View style={{ backgroundColor: '#ddd', paddingHorizontal: '5%', paddingVertical: '3%', marginTop: '2%', borderRadius: 12 }}>
+                <View style={{ backgroundColor: '#e7e7e7', paddingHorizontal: '5%', paddingVertical: '3%', marginTop: '2%', borderRadius: 12 }}>
                     <TextInput placeholder={props.placeholder} keyboardType={props.keyboardType == undefined ? 'default' : props.keyboardType} returnKeyType={props.returnKeyType == undefined ? 'done' : props.returnKeyType} onChangeText={input => onTextChange(input)} />
                 </View>
             </View>

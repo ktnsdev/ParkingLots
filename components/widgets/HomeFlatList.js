@@ -78,77 +78,74 @@ class HomeFlatList extends Component {
     render() {
         return (
             <>
-                {this.state.verifiedParkingLots[0] != undefined &&
-                    <FlatList
-                        data={this.state.verifiedParkingLots}
-                        keyExtractor={item => item._id}
-                        renderItem={({ item }) => (
-                            <>
-                                <View style={styles.flatListItemView}>
-                                    <TouchableOpacity onPress={items => this.onParkingLotNamePressed(item)}>
+                <FlatList
+                    data={this.state.verifiedParkingLots}
+                    keyExtractor={item => item._id}
+                    renderItem={({ item }) => (
+                        <>
+                            <View style={styles.flatListItemView}>
+                                <TouchableOpacity onPress={items => this.onParkingLotNamePressed(item)}>
+                                    <View>
                                         <View>
+                                            <TextWithFont iosFontWeight={'600'} androidFontWeight={'semibold'} fontSize={24}>{item.name.en}</TextWithFont>
+                                            {item.price.first_free > 0 &&
+                                                <TextWithFont fontSize={16}>First {this.state.verifiedParkingLotsFreeTime[item._id].day == 0 ? '' : '' + this.state.verifiedParkingLotsFreeTime[item._id].day + ' day'}{(this.state.verifiedParkingLotsFreeTime[item._id].day != 0 && this.state.verifiedParkingLotsFreeTime[item._id].day != 1) ? 's' : '' + (this.state.verifiedParkingLotsFreeTime[item._id].hour != 0 || this.state.verifiedParkingLotsFreeTime[item._id].minute != 0) && this.state.verifiedParkingLotsFreeTime[item._id].day != 0 ? ' ' : ''}
+                                                    {this.state.verifiedParkingLotsFreeTime[item._id].hour == 0 ? '' : '' + this.state.verifiedParkingLotsFreeTime[item._id].hour + ' hour'}{(this.state.verifiedParkingLotsFreeTime[item._id].hour != 0 && this.state.verifiedParkingLotsFreeTime[item._id].hour != 1) ? 's' : '' + (this.state.verifiedParkingLotsFreeTime[item._id].minute != 0) && this.state.verifiedParkingLotsFreeTime[item._id].hour != 0 ? ' ' : ''}
+                                                    {this.state.verifiedParkingLotsFreeTime[item._id].minute == 0 ? '' : '' + this.state.verifiedParkingLotsFreeTime[item._id].minute + ' minute'}{(this.state.verifiedParkingLotsFreeTime[item._id].minute != 0 && this.state.verifiedParkingLotsFreeTime[item._id].minute != 1) ? 's' : ''} {this.state.verifiedParkingLotsFreeTime[item._id].hour + this.state.verifiedParkingLotsFreeTime[item._id].minute + this.state.verifiedParkingLotsFreeTime[item._id].day == 1 ? 'is' : 'are'} free</TextWithFont>
+                                            }
+                                            {item.price.first_free == 0 && item.price.free == true &&
+                                                <TextWithFont fontSize={16}>No charge</TextWithFont>
+                                            }
+                                            {item.price.first_free == 0 && item.price.free == false && Object.keys(item.price.after_free).length != 0 &&
+                                                <TextWithFont fontSize={16}>Flat rate</TextWithFont>
+                                            }
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableHighlight style={styles.directionButtonView} onPress={this.recentre} underlayColor='#ddd' onPress={this.onDirectionPressed}>
+                                    <View>
+                                        <Icon name='directions' size={28} />
+                                    </View>
+                                </TouchableHighlight>
+                            </View>
+                        </>
+                    )}
+                    ListFooterComponent={
+                        <FlatList
+                            data={this.state.notVerifiedParkingLots}
+                            keyExtractor={item => item._id}
+                            renderItem={({ item }) => (
+                                <>
+                                    <View style={styles.flatListItemView}>
+                                        <TouchableOpacity onPress={items => this.onParkingLotNamePressed(item)}>
                                             <View>
-                                                <TextWithFont iosFontWeight={'600'} androidFontWeight={'semibold'} fontSize={24}>{item.name.en}</TextWithFont>
-                                                {item.price.first_free > 0 &&
-                                                    <TextWithFont fontSize={16}>First {this.state.verifiedParkingLotsFreeTime[item._id].day == 0 ? '' : '' + this.state.verifiedParkingLotsFreeTime[item._id].day + ' day'}{(this.state.verifiedParkingLotsFreeTime[item._id].day != 0 && this.state.verifiedParkingLotsFreeTime[item._id].day != 1) ? 's' : '' + (this.state.verifiedParkingLotsFreeTime[item._id].hour != 0 || this.state.verifiedParkingLotsFreeTime[item._id].minute != 0) && this.state.verifiedParkingLotsFreeTime[item._id].day != 0 ? ' ' : ''}
-                                                        {this.state.verifiedParkingLotsFreeTime[item._id].hour == 0 ? '' : '' + this.state.verifiedParkingLotsFreeTime[item._id].hour + ' hour'}{(this.state.verifiedParkingLotsFreeTime[item._id].hour != 0 && this.state.verifiedParkingLotsFreeTime[item._id].hour != 1) ? 's' : '' + (this.state.verifiedParkingLotsFreeTime[item._id].minute != 0) && this.state.verifiedParkingLotsFreeTime[item._id].hour != 0 ? ' ' : ''}
-                                                        {this.state.verifiedParkingLotsFreeTime[item._id].minute == 0 ? '' : '' + this.state.verifiedParkingLotsFreeTime[item._id].minute + ' minute'}{(this.state.verifiedParkingLotsFreeTime[item._id].minute != 0 && this.state.verifiedParkingLotsFreeTime[item._id].minute != 1) ? 's' : ''} {this.state.verifiedParkingLotsFreeTime[item._id].hour + this.state.verifiedParkingLotsFreeTime[item._id].minute + this.state.verifiedParkingLotsFreeTime[item._id].day == 1 ? 'is' : 'are'} free</TextWithFont>
-                                                }
-                                                {item.price.first_free == 0 && item.price.free == true &&
-                                                    <TextWithFont fontSize={16}>No charge</TextWithFont>
-                                                }
-                                                {item.price.first_free == 0 && item.price.free == false && Object.keys(item.price.after_free).length != 0 &&
-                                                    <TextWithFont fontSize={16}>Flat rate</TextWithFont>
-                                                }
+                                                <View>
+                                                    <TextWithFont iosFontWeight={'600'} androidFontWeight={'semibold'} fontSize={24}>{item.name.en}</TextWithFont>
+                                                    {item.price.first_free > 0 &&
+                                                        <TextWithFont fontSize={16}>First {this.state.notVerifiedParkingLotsFreeTime[item._id].day == 0 ? '' : '' + this.state.notVerifiedParkingLotsFreeTime[item._id].day + ' day'}{(this.state.notVerifiedParkingLotsFreeTime[item._id].day != 0 && this.state.notVerifiedParkingLotsFreeTime[item._id].day != 1) ? 's' : '' + (this.state.notVerifiedParkingLotsFreeTime[item._id].hour != 0 || this.state.notVerifiedParkingLotsFreeTime[item._id].minute != 0) && this.state.notVerifiedParkingLotsFreeTime[item._id].day != 0 ? ' ' : ''}
+                                                            {this.state.notVerifiedParkingLotsFreeTime[item._id].hour == 0 ? '' : '' + this.state.notVerifiedParkingLotsFreeTime[item._id].hour + ' hour'}{(this.state.notVerifiedParkingLotsFreeTime[item._id].hour != 0 && this.state.notVerifiedParkingLotsFreeTime[item._id].hour != 1) ? 's' : '' + (this.state.notVerifiedParkingLotsFreeTime[item._id].minute != 0) && this.state.notVerifiedParkingLotsFreeTime[item._id].hour != 0 ? ' ' : ''}
+                                                            {this.state.notVerifiedParkingLotsFreeTime[item._id].minute == 0 ? '' : '' + this.state.notVerifiedParkingLotsFreeTime[item._id].minute + ' minute'}{(this.state.notVerifiedParkingLotsFreeTime[item._id].minute != 0 && this.state.notVerifiedParkingLotsFreeTime[item._id].minute != 1) ? 's' : ''} {this.state.notVerifiedParkingLotsFreeTime[item._id].hour + this.state.notVerifiedParkingLotsFreeTime[item._id].minute + this.state.notVerifiedParkingLotsFreeTime[item._id].day == 1 ? 'is' : 'are'} free</TextWithFont>
+                                                    }
+                                                    {item.price.first_free == 0 && item.price.free == true &&
+                                                        <TextWithFont fontSize={16}>No charge</TextWithFont>
+                                                    }
+                                                    {item.price.first_free == 0 && item.price.free == false && Object.keys(item.price.after_free).length != 0 &&
+                                                        <TextWithFont fontSize={16}>Flat rate</TextWithFont>
+                                                    }
+                                                </View>
                                             </View>
-                                        </View>
-                                    </TouchableOpacity>
-                                    <TouchableHighlight style={styles.directionButtonView} onPress={this.recentre} underlayColor='#ddd' onPress={this.onDirectionPressed}>
-                                        <View>
-                                            <Icon name='directions' size={28} />
-                                        </View>
-                                    </TouchableHighlight>
-                                </View>
-                            </>
-                        )}
-                    />
-                }
-
-                {this.state.notVerifiedParkingLots[0] != undefined &&
-                    <FlatList
-                        data={this.state.notVerifiedParkingLots}
-                        keyExtractor={item => item._id}
-                        renderItem={({ item }) => (
-                            <>
-                                <View style={styles.flatListItemView}>
-                                    <TouchableOpacity onPress={items => this.onParkingLotNamePressed(item)}>
-                                        <View>
+                                        </TouchableOpacity>
+                                        <TouchableHighlight style={styles.directionButtonView} onPress={this.recentre} underlayColor='#ddd' onPress={this.onDirectionPressed}>
                                             <View>
-                                                <TextWithFont iosFontWeight={'600'} androidFontWeight={'semibold'} fontSize={24}>{item.name.en}</TextWithFont>
-                                                {item.price.first_free > 0 &&
-                                                    <TextWithFont fontSize={16}>First {this.state.notVerifiedParkingLotsFreeTime[item._id].day == 0 ? '' : '' + this.state.notVerifiedParkingLotsFreeTime[item._id].day + ' day'}{(this.state.notVerifiedParkingLotsFreeTime[item._id].day != 0 && this.state.notVerifiedParkingLotsFreeTime[item._id].day != 1) ? 's' : '' + (this.state.notVerifiedParkingLotsFreeTime[item._id].hour != 0 || this.state.notVerifiedParkingLotsFreeTime[item._id].minute != 0) && this.state.notVerifiedParkingLotsFreeTime[item._id].day != 0 ? ' ' : ''}
-                                                        {this.state.notVerifiedParkingLotsFreeTime[item._id].hour == 0 ? '' : '' + this.state.notVerifiedParkingLotsFreeTime[item._id].hour + ' hour'}{(this.state.notVerifiedParkingLotsFreeTime[item._id].hour != 0 && this.state.notVerifiedParkingLotsFreeTime[item._id].hour != 1) ? 's' : '' + (this.state.notVerifiedParkingLotsFreeTime[item._id].minute != 0) && this.state.notVerifiedParkingLotsFreeTime[item._id].hour != 0 ? ' ' : ''}
-                                                        {this.state.notVerifiedParkingLotsFreeTime[item._id].minute == 0 ? '' : '' + this.state.notVerifiedParkingLotsFreeTime[item._id].minute + ' minute'}{(this.state.notVerifiedParkingLotsFreeTime[item._id].minute != 0 && this.state.notVerifiedParkingLotsFreeTime[item._id].minute != 1) ? 's' : ''} {this.state.notVerifiedParkingLotsFreeTime[item._id].hour + this.state.notVerifiedParkingLotsFreeTime[item._id].minute + this.state.notVerifiedParkingLotsFreeTime[item._id].day == 1 ? 'is' : 'are'} free</TextWithFont>
-                                                }
-                                                {item.price.first_free == 0 && item.price.free == true &&
-                                                    <TextWithFont fontSize={16}>No charge</TextWithFont>
-                                                }
-                                                {item.price.first_free == 0 && item.price.free == false && Object.keys(item.price.after_free).length != 0 &&
-                                                    <TextWithFont fontSize={16}>Flat rate</TextWithFont>
-                                                }
+                                                <Icon name='directions' size={28} />
                                             </View>
-                                        </View>
-                                    </TouchableOpacity>
-                                    <TouchableHighlight style={styles.directionButtonView} onPress={this.recentre} underlayColor='#ddd' onPress={this.onDirectionPressed}>
-                                        <View>
-                                            <Icon name='directions' size={28} />
-                                        </View>
-                                    </TouchableHighlight>
-                                </View>
-                            </>
-                        )}
-                    />
-                }
+                                        </TouchableHighlight>
+                                    </View>
+                                </>
+                            )}
+                        />
+                    }
+                />
             </>
         )
     }

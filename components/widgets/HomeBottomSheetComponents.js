@@ -7,7 +7,7 @@ export default function HomeBottomSheetComponents(props) {
     return (
         <>
             <View style={styles.handleViewContainer}>
-                <View style={styles.handleView}/>
+                <View style={styles.handleView} />
             </View>
             <View>
                 <View style={styles.titleView}>
@@ -16,10 +16,8 @@ export default function HomeBottomSheetComponents(props) {
 
                 <View style={styles.lineBreak} />
             </View>
-            <View style={styles.homeFlatListContainer}>
-                <HomeFlatList navigation={props.navigation} />
-            </View>
-            <SafeAreaView/>
+            <HomeFlatList navigation={props.navigation} />
+            <SafeAreaView />
         </>
     );
 }

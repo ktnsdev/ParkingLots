@@ -16,7 +16,7 @@ export default function GrayTextBoxWithTitle({ placeholder, title, required, wid
                         }
                     })
                 }}>{title} <TextWithFont color={'#ff8f17'}>{required}</TextWithFont></TextWithFont>
-                <View style={{ backgroundColor: '#ddd', paddingHorizontal: '5%', paddingVertical: '3%', marginTop: '2%', borderRadius: 12, width: width }}>
+                <View style={{ backgroundColor: '#e7e7e7', paddingHorizontal: '5%', paddingVertical: '3%', marginTop: '2%', borderRadius: 12, width: width }}>
                     <TextWithFont color={'#999'} fontSize={16} iosFontWeight={'bold'} androidFontWeight={'bold'}>{placeholder}</TextWithFont>
                 </View>
             </View>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { Divider } from 'react-native-elements'
 import GrayTextInputWithTitle from '../GrayTextInputWIthTitle';
 import TextWithFont from '../TextWithFont';
 import ParkingFeeConditionAdder from './ParkingFeeConditionAdder';
@@ -108,7 +109,7 @@ const ContributeParkingLotFee = (props) => {
                     />
                 </View>
 
-                <View style={styles.lineBreak}></View>
+                <Divider style={{ backgroundColor: '#404040', marginVertical: '3%' }}/>
             </>
         )
     }
@@ -132,7 +133,7 @@ const ContributeParkingLotFee = (props) => {
                 <HourMinuteDayButton initial={'hr'} callbackFunction={getUnitTime} />
             </View>
 
-            <View style={styles.lineBreak}></View>
+            <Divider style={{ backgroundColor: '#404040', marginVertical: '3%' }}/>
 
             <View style={{ ...Platform.select({ 'ios': { marginBottom: '-3%' }, 'android': { marginBottom: '-7%' }}) }}>
                 {(inputNotEmpty && charIsValid && timeIsValid) && renderParkingFeeConditionAdder()}
@@ -140,14 +141,5 @@ const ContributeParkingLotFee = (props) => {
         </>
     )
 }
-
-const styles = StyleSheet.create({
-    lineBreak: {
-        borderBottomColor: '#404040',
-        borderBottomWidth: 0.5,
-        marginTop: "3%",
-        marginBottom: "3%"
-    }
-});
 
 export default ContributeParkingLotFee

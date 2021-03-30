@@ -1,5 +1,6 @@
 import React, { Component, createRef } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { Divider } from 'react-native-elements'
 import { FlatList } from 'react-native-gesture-handler';
 import MapView, { Marker } from 'react-native-maps';
 import TextWithFont from '../TextWithFont';
@@ -104,13 +105,13 @@ class ContributeMapAndAutocomplete extends Component {
 
     getSelectedPlaceDetails(placeId) {
         fetch(placeSearchURL + placeId + '&language=th&fields=name,address_component,plus_code,formatted_address,name,geometry,type&key=' + config.placesAPIKey + '&sessiontoken=' + config.sessionkey)
-        .then(response => response.json())
-        .then((jsonData) => {
-            console.log(jsonData)
-            this.setState({
-                selectedPlaceDetailsTH: jsonData.result,
-            })
-        });
+            .then(response => response.json())
+            .then((jsonData) => {
+                console.log(jsonData)
+                this.setState({
+                    selectedPlaceDetailsTH: jsonData.result,
+                })
+            });
 
         fetch(placeSearchURL + placeId + '&fields=name,address_component,plus_code,formatted_address,name,geometry,type&key=' + config.placesAPIKey + '&sessiontoken=' + config.sessionkey)
             .then(response => response.json())
@@ -135,7 +136,7 @@ class ContributeMapAndAutocomplete extends Component {
     }
 
     nextPage() {
-        this.props.navigation.navigate('ContributeSecondPage', { paramKey: {'en': this.state.selectedPlaceDetailsEN, 'th': this.state.selectedPlaceDetailsTH, 'place_id': this.state.selectedPlaceId }});
+        this.props.navigation.navigate('ContributeSecondPage', { paramKey: { 'en': this.state.selectedPlaceDetailsEN, 'th': this.state.selectedPlaceDetailsTH, 'place_id': this.state.selectedPlaceId } });
     }
 
     render() {
@@ -158,6 +159,9 @@ class ContributeMapAndAutocomplete extends Component {
                                         <TextWithFont fontSize={14}>{item.structured_formatting.secondary_text}</TextWithFont>
                                     </View>
                                 </TouchableOpacity>
+                                {item != this.state.autocompleteList[this.state.autocompleteList.length - 1] &&
+                                    <Divider style={{ backgroundColor: '#404040', marginHorizontal: '5%' }}/>
+                                }
                             </>
                         )}
                     />
@@ -203,7 +207,7 @@ class ContributeMapAndAutocomplete extends Component {
                     <View style={styles.continueButtonView}>
                         <TouchableOpacity style={styles.continueButton} onPress={this.nextPage} activeOpacity={0.8}>
                             <View>
-                            <TextWithFont fontSize={18} iosFontWeight={'bold'} androidFontWeight={'bold'} color={'#fff'}>Continue</TextWithFont>
+                                <TextWithFont fontSize={18} iosFontWeight={'bold'} androidFontWeight={'bold'} color={'#fff'}>Continue</TextWithFont>
                             </View>
                         </TouchableOpacity>
                     </View>
@@ -230,7 +234,7 @@ const styles = StyleSheet.create({
         width: '100%',
         paddingHorizontal: '5%',
         marginRight: '3%',
-        backgroundColor: '#ddd',
+        backgroundColor: '#e7e7e7',
         borderRadius: 12
     },
     textInputTitle: {
@@ -248,6 +252,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderRadius: 12,
         marginVertical: '2%',
+        shadowColor: "#333",
+        shadowOffset: {
+            width: 0,
+            height: 0,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 2,
+        elevation: 7,
     },
     placeTitle: {
         fontWeight: 'bold',
@@ -259,12 +271,6 @@ const styles = StyleSheet.create({
     },
     autocompleteInsideContainer: {
         padding: '5%'
-    },
-    lineBreak: {
-        marginHorizontal: '5%',
-        borderBottomColor: '#404040',
-        borderBottomWidth: 0.5,
-        marginVertical: '3%'
     },
     selectedPlaceView: {
         marginVertical: '3%',

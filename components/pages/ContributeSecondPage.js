@@ -1,5 +1,6 @@
 import React, { Component, useEffect, useRef, useState } from 'react';
 import { SafeAreaView, Text, StyleSheet, View, Platform, TextInput, TouchableOpacity, ScrollView, Alert, BackHandler, Animated, Dimensions, Keyboard } from 'react-native';
+import { Divider } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MapView, { Marker } from 'react-native-maps';
 import GrayTextBoxWithTitle from '../widgets/GrayTextBoxWithTitle';
@@ -251,7 +252,7 @@ const ContributeSecondPage = ({ route, navigation }) => {
                                 <YesNoButton initial={'y'} handleSelection={getIsFreeFromYesNoButton} />
                             </View>
 
-                            <View style={styles.lineBreak} />
+                            <Divider style={{ backgroundColor: '#404040', marginVertical: '3%' }}/>
                             {!isFree && (
                                 <>
                                     {renderParkingFeeContribution()}
@@ -452,12 +453,6 @@ const styles = StyleSheet.create({
                 marginTop: '3%'
             }
         })
-    },
-    lineBreak: {
-        borderBottomColor: '#404040',
-        borderBottomWidth: 0.5,
-        marginTop: "3%",
-        marginBottom: "3%"
     }
 })
 

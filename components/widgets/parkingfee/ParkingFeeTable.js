@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Text, StyleSheet, View, Platform, TextInputComponent, FlatList } from 'react-native';
+import { Divider } from 'react-native-elements'
 import TextWithFont from '../TextWithFont';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -130,7 +131,7 @@ const ParkingFeeTable = (props) => {
                     data={priceArray}
                     renderItem={({ item }) => (
                         <>
-                            {(props.price.first_free != 0) && <View style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />}
+                            {(props.price.first_free != 0) && <Divider style={{ backgroundColor: '#666', height: 0.7, width: '100%', marginLeft: 3, marginRight: 3, marginVertical: 0 }} />}
                             <View style={{
                                 flexDirection: 'row',
                                 marginVertical: 5
@@ -138,14 +139,18 @@ const ParkingFeeTable = (props) => {
                                 <View style={{ width: '49.9%', alignItems: 'center' }}>
                                     <View style={{ marginVertical: 6, alignItems: 'center' }}>
                                         {(item.time_end == undefined || item == priceArray[priceArray.length - 1]) && props.price.first_free != 0 &&
-                                            <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>
-                                                {item == priceArray[priceArray.length - 1] ? 'After that' : ''}
-                                            </TextWithFont>
+                                            <View style={{ marginBottom: -6 }}>
+                                                <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>
+                                                    {item == priceArray[priceArray.length - 1] ? 'After that' : ''}
+                                                </TextWithFont>
+                                            </View>
                                         }
                                         {(item.time_end == undefined || item == priceArray[priceArray.length - 1]) && props.price.first_free == 0 &&
-                                            <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>
-                                                {item == priceArray[priceArray.length - 1] ? 'Flat rate' : ''}
-                                            </TextWithFont>
+                                            <View style={{ marginBottom: -6 }}>
+                                                <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>
+                                                    {item == priceArray[priceArray.length - 1] ? 'Flat rate' : ''}
+                                                </TextWithFont>
+                                            </View>
                                         }
                                         {(item.time_end != undefined && item != priceArray[priceArray.length - 1]) &&
                                             <TextWithFont fontSize={16} androidFontWeight={'bold'} iosFontWeight={'600'}>
@@ -164,7 +169,15 @@ const ParkingFeeTable = (props) => {
                                 <View style={{ backgroundColor: '#666', width: '0.2%', marginVertical: -5 }} />
 
                                 <View style={{ width: '49.9%', alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
-                                    <TextWithFont iosFontWeight={'600'} androidFontWeight={'bold'} fontSize={16}>{item.fee} THB</TextWithFont>
+                                    {item == priceArray[priceArray.length - 1] &&
+                                        <View style={{ marginBottom: -6 }}>
+                                            <TextWithFont iosFontWeight={'600'} androidFontWeight={'bold'} fontSize={16}>{item.fee} THB</TextWithFont>
+
+                                        </View>
+                                    }
+                                    {item != priceArray[priceArray.length - 1] &&
+                                        <TextWithFont iosFontWeight={'600'} androidFontWeight={'bold'} fontSize={16}>{item.fee} THB</TextWithFont>
+                                    }
                                 </View>
                             </View>
                         </>
@@ -180,7 +193,7 @@ const ParkingFeeTable = (props) => {
                 marginTop: '2%',
                 paddingVertical: '3%',
                 paddingHorizontal: '4%',
-                backgroundColor: '#f5f5f5',
+                backgroundColor: '#fff',
                 borderRadius: 12,
                 shadowColor: "#333",
                 shadowOffset: {
@@ -194,9 +207,9 @@ const ParkingFeeTable = (props) => {
                 {props.price.free == true &&
                     <>
                         <View style={{ flexDirection: 'row', justifyContent: 'center', paddingVertical: '2%' }}>
-                            <Icon name={'check-circle-outline'} size={32} color={'#66bb6a'}/>
+                            <Icon name={'check-circle-outline'} size={32} color={'#66bb6a'} />
                             <View style={{ justifyContent: 'center', marginLeft: '3%' }}>
-                            <TextWithFont fontSize={20} androidFontWeight={'bold'} iosFontWeight={'600'}>Free of charge</TextWithFont>
+                                <TextWithFont fontSize={20} androidFontWeight={'bold'} iosFontWeight={'600'}>Free of charge</TextWithFont>
 
                             </View>
                         </View>

@@ -75,7 +75,9 @@ class Home extends Component {
                                     y: this.state.scrollY
                                 }
                             }
-                        }])}
+                        }],
+                        { useNativeDriver: false }
+                    )}
                 >
                     <View style={{ flex: 1 }}>
                         <View style={{ top: 0 }}>
@@ -88,9 +90,7 @@ class Home extends Component {
                                 showsUserLocation={true}
                             />
                         </View>
-                        <View>
-                            <HomeBottomSheet navigation={this.props.navigation} style={{ marginTop: '-2%' }} />
-                        </View>
+                        <HomeBottomSheet navigation={this.props.navigation} style={{ marginTop: '-2%' }} />
                     </View>
                 </ScrollView>
 

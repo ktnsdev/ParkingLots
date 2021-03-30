@@ -5,7 +5,7 @@ import TextWithFont from './TextWithFont';
 const HourMinuteDayButton = ({ initial, callbackFunction }) => {
     const buttonColour = {
         'active': '#ffdeba',
-        'inactive': '#e6e6e6'
+        'inactive': '#e9e9e9'
     }
 
     const textColour = {

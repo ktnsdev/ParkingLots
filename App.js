@@ -15,13 +15,17 @@ export default function App() {
   return (
     <>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Home" component={Home}/>
-          <Stack.Screen name="Contribute" component={Contribute}/>
-          <Stack.Screen name="ContributeSecondPage" component={ContributeSecondPage} options={{gestureEnabled: false}}/>
-          <Stack.Screen name="ContributeMapAndAutocomplete" component={ContributeMapAndAutocomplete}/>
-          <Stack.Screen name="ContributeFinalPage" component={ContributeFinalPage} options={{gestureEnabled: false}}/>
-          <Stack.Screen name="ParkingLotDetailsPage" component={ParkingLotDetailsPage} options={{gestureEnabled: true}}/>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            cardStyle: { backgroundColor: '#fff' }
+          }}>
+          <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen name="Contribute" component={Contribute} />
+          <Stack.Screen name="ContributeSecondPage" component={ContributeSecondPage} options={{ gestureEnabled: false }} />
+          <Stack.Screen name="ContributeMapAndAutocomplete" component={ContributeMapAndAutocomplete} />
+          <Stack.Screen name="ContributeFinalPage" component={ContributeFinalPage} options={{ gestureEnabled: false }} />
+          <Stack.Screen name="ParkingLotDetailsPage" component={ParkingLotDetailsPage} options={{ gestureEnabled: true }} />
         </Stack.Navigator>
       </NavigationContainer>
     </>
